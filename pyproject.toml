@@ -1,0 +1,51 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "mutiny"
+readme = "README.md"
+authors = [
+    {name = "Jakub Kuczys (jack1142)"},
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Framework :: AsyncIO",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Internet",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
+    "Typing :: Typed",
+]
+requires-python = ">=3.9,<3.10"
+dynamic = ["description", "version"]
+dependencies = [
+    "aiohttp~=3.7",
+    "ulid-py~=1.0",
+]
+
+[project.urls]
+"Documentation" = "https://mutiny.readthedocs.io"
+"Sponsor on GitHub" = "https://github.com/sponsors/jack1142"
+"Issue Tracker" = "https://github.com/jack1142/Mutiny/issues"
+"Source Code" = "https://github.com/jack1142/Mutiny"
+
+[project.optional-dependencies]
+dev = [
+    "black==21.7b0",
+    "flake8==3.9.2",
+    "isort==5.9.3",
+    "mypy==0.910",
+]
+
+[tool.black]
+target-version = ["py39"]
+
+[tool.isort]
+profile = "black"
+combine_as_imports = true
+filter_files = true
