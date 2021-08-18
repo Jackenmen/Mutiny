@@ -14,7 +14,7 @@
 
 """Async ready API wrapper for Revolt API written in Python."""
 
-__version__ = "0.1.0a0"
+__version__ = "0.2.0a0"
 
 from . import events
 from ._internal.client import Client
