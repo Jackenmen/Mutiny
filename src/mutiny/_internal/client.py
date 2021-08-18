@@ -16,13 +16,15 @@ from typing import Callable, Optional, TypeVar, overload
 
 import aiohttp
 
+from ..events import Event
 from .authentication_data import AuthenticationData
 from .event_handler import EventHandler, EventListener, EventT_contra
-from .events import Event
 from .gateway import GatewayClient
 from .rest import RESTClient
 
 T = TypeVar("T")
+
+__all__ = ("Client",)
 
 
 class Client:

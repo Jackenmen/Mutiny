@@ -20,12 +20,14 @@ from typing import TYPE_CHECKING, Any, Optional
 
 import aiohttp
 
+from ..events import Event
 from .authentication_data import AuthenticationData
 from .event_handler import EventHandler
-from .events import Event
 
 if TYPE_CHECKING:
     from .client import Client
+
+__all__ = ("GatewayClient",)
 
 
 class GatewayClient:

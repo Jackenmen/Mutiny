@@ -16,7 +16,9 @@ import asyncio
 import inspect
 from typing import Any, Coroutine, Optional, Protocol, TypeVar, get_type_hints
 
-from .events import Event
+from ..events import Event
+
+__all__ = ("EventHandler", "EventListener", "EventT_contra")
 
 _T_co = TypeVar("_T_co", covariant=True)
 EventT_contra = TypeVar("EventT_contra", bound=Event, contravariant=True)

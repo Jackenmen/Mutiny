@@ -16,6 +16,34 @@ from __future__ import annotations
 
 from typing import Any
 
+__all__ = (
+    "Event",
+    "ErrorEvent",
+    "AuthenticatedEvent",
+    "PongEvent",
+    "ReadyEvent",
+    "MessageEvent",
+    "MessageUpdateEvent",
+    "MessageDeleteEvent",
+    "ChannelCreateEvent",
+    "ChannelUpdateEvent",
+    "ChannelDeleteEvent",
+    "ChannelGroupJoinEvent",
+    "ChannelGroupLeaveEvent",
+    "ChannelStartTypingEvent",
+    "ChannelStopTypingEvent",
+    "ChannelAckEvent",
+    "ServerUpdateEvent",
+    "ServerDeleteEvent",
+    "ServerMemberUpdateEvent",
+    "ServerMemberJoinEvent",
+    "ServerMemberLeaveEvent",
+    "ServerRoleUpdateEvent",
+    "ServerRoleDeleteEvent",
+    "UserUpdateEvent",
+    "UserRelationshipEvent",
+)
+
 
 class Event:
     __slots__ = ("raw_data", "type")

@@ -25,6 +25,8 @@ from .authentication_data import AuthenticationData
 if TYPE_CHECKING:
     from .client import Client
 
+__all__ = ("RESTClient",)
+
 
 class RESTClient:
     def __init__(

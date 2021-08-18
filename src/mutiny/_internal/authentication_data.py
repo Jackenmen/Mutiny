@@ -14,6 +14,8 @@
 
 from typing import Any, Optional
 
+__all__ = ("AuthenticationData",)
+
 
 class AuthenticationData:
     __slots__ = ("token", "user_id", "session_token")

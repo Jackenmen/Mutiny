@@ -19,6 +19,8 @@ from typing import Callable, Generic, Optional, TypeVar, Union, overload
 _T = TypeVar("_T")
 _S = TypeVar("_S")
 
+__all__ = ("cached_slot_property",)
+
 
 class cached_slot_property(Generic[_T, _S]):
     __slots__ = ("attr_name", "func")
