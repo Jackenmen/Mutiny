@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, final
 
 if TYPE_CHECKING:
     from ._internal.state import State
@@ -66,102 +66,127 @@ class Event:
         pass
 
 
+@final
 class UnknownEvent(Event):
     __slots__ = ()
 
 
+@final
 class ErrorEvent(Event):
     __slots__ = ()
 
 
+@final
 class AuthenticatedEvent(Event):
     __slots__ = ()
 
 
+@final
 class PongEvent(Event):
     __slots__ = ()
 
 
+@final
 class ReadyEvent(Event):
     __slots__ = ()
 
 
+@final
 class MessageEvent(Event):
     __slots__ = ()
 
 
+@final
 class MessageUpdateEvent(Event):
     __slots__ = ()
 
 
+@final
 class MessageDeleteEvent(Event):
     __slots__ = ()
 
 
+@final
 class ChannelCreateEvent(Event):
     __slots__ = ()
 
 
+@final
 class ChannelUpdateEvent(Event):
     __slots__ = ()
 
 
+@final
 class ChannelDeleteEvent(Event):
     __slots__ = ()
 
 
+@final
 class ChannelGroupJoinEvent(Event):
     __slots__ = ()
 
 
+@final
 class ChannelGroupLeaveEvent(Event):
     __slots__ = ()
 
 
+@final
 class ChannelStartTypingEvent(Event):
     __slots__ = ()
 
 
+@final
 class ChannelStopTypingEvent(Event):
     __slots__ = ()
 
 
+@final
 class ChannelAckEvent(Event):
     __slots__ = ()
 
 
+@final
 class ServerUpdateEvent(Event):
     __slots__ = ()
 
 
+@final
 class ServerDeleteEvent(Event):
     __slots__ = ()
 
 
+@final
 class ServerMemberUpdateEvent(Event):
     __slots__ = ()
 
 
+@final
 class ServerMemberJoinEvent(Event):
     __slots__ = ()
 
 
+@final
 class ServerMemberLeaveEvent(Event):
     __slots__ = ()
 
 
+@final
 class ServerRoleUpdateEvent(Event):
     __slots__ = ()
 
 
+@final
 class ServerRoleDeleteEvent(Event):
     __slots__ = ()
 
 
+@final
 class UserUpdateEvent(Event):
     __slots__ = ()
 
 
+@final
 class UserRelationshipEvent(Event):
     __slots__ = ()
 
