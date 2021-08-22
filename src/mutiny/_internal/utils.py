@@ -26,7 +26,7 @@ class cached_slot_property(Generic[_T, _S]):
     __slots__ = ("attr_name", "func")
 
     def __init__(self, func: Callable[[_T], _S]) -> None:
-        self.attr_name = f"_cached_{func.__name__}"
+        self.attr_name = f"_cs_{func.__name__}"
         self.func = func
 
     @overload
@@ -44,7 +44,7 @@ class cached_slot_property(Generic[_T, _S]):
             return self
 
         try:
-            return getattr(instance, self.attr_name)
+            return getattr(instance, self.attr_name)  # type: ignore[no-any-return]
         except AttributeError:
             ret = self.func(instance)
             setattr(instance, self.attr_name, ret)
