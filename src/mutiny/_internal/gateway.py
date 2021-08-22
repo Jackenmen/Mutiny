@@ -26,6 +26,7 @@ from .event_handler import EventHandler
 
 if TYPE_CHECKING:
     from .client import Client
+    from .state import State
 
 __all__ = ("GatewayClient",)
 
@@ -40,12 +41,15 @@ class GatewayClient:
         url: str,
         authentication_data: AuthenticationData,
         event_handler: EventHandler,
+        state: State,
     ) -> None:
         self.session = session
         self.url = url
         self.authentication_data = authentication_data
         self.heartbeat_task: Optional[asyncio.Task] = None
         self.event_handler = event_handler
+        self.state = state
+        state.gateway = self
 
     @classmethod
     def from_client(cls, client: Client) -> GatewayClient:
@@ -54,6 +58,7 @@ class GatewayClient:
             url=client._rest.gateway_url,
             authentication_data=client._authentication_data,
             event_handler=client._event_handler,
+            state=client._state,
         )
         return gateway
 
@@ -76,7 +81,7 @@ class GatewayClient:
             if msg.type is not aiohttp.WSMsgType.TEXT:
                 raise RuntimeError(f"got {msg}, but can't handle its type")
 
-            event = Event.from_dict(json.loads(msg.data))
+            event = Event.from_dict(self.state, json.loads(msg.data))
             self.event_handler.dispatch(event)
 
     async def authenticate(self) -> None:

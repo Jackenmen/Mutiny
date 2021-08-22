@@ -21,6 +21,7 @@ from .authentication_data import AuthenticationData
 from .event_handler import EventHandler, EventListener, EventT_contra
 from .gateway import GatewayClient
 from .rest import RESTClient
+from .state import State
 
 T = TypeVar("T")
 
@@ -67,6 +68,7 @@ class Client:
         )
         self._event_handler = EventHandler()
         self.api_url = api_url
+        self._state = State()
 
     async def start(self) -> None:
         await self.login()

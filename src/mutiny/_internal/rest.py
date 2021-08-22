@@ -24,6 +24,7 @@ from .authentication_data import AuthenticationData
 
 if TYPE_CHECKING:
     from .client import Client
+    from .state import State
 
 __all__ = ("RESTClient",)
 
@@ -35,12 +36,15 @@ class RESTClient:
         session: aiohttp.ClientSession,
         authentication_data: AuthenticationData,
         api_url: str,
+        state: State,
     ) -> None:
         self.session = session
         self.authentication_data = authentication_data
         self.api_url = api_url
         self.configuration: dict[str, Any] = {}
         self.headers = self.authentication_data.to_headers()
+        self.state = state
+        state.rest = self
 
     @classmethod
     async def from_client(cls, client: Client) -> RESTClient:
@@ -48,6 +52,7 @@ class RESTClient:
             session=client._session,
             authentication_data=client._authentication_data,
             api_url=client.api_url,
+            state=client._state,
         )
         await rest.fetch_configuration()
         return rest

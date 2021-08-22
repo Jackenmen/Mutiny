@@ -14,7 +14,10 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from ._internal.state import State
 
 __all__ = (
     "Event",
@@ -46,17 +49,18 @@ __all__ = (
 
 
 class Event:
-    __slots__ = ("raw_data", "type")
+    __slots__ = ("_state", "raw_data", "type")
 
-    def __init__(self, raw_data: dict[str, Any]) -> None:
+    def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
+        self._state = state
         self.raw_data = raw_data
         self.type: str = raw_data["type"]
 
     @classmethod
-    def from_dict(cls, raw_data: dict[str, Any]) -> Event:
+    def from_dict(cls, state: State, raw_data: dict[str, Any]) -> Event:
         event_type = raw_data["type"]
         event_cls = EVENTS.get(event_type, UnknownEvent)
-        return event_cls(raw_data)
+        return event_cls(state, raw_data)
 
 
 class UnknownEvent(Event):
