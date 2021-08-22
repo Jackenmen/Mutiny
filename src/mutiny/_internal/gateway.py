@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 from typing import TYPE_CHECKING, Any, Optional
 
 import aiohttp
@@ -29,6 +30,8 @@ if TYPE_CHECKING:
     from .state import State
 
 __all__ = ("GatewayClient",)
+
+_log = logging.getLogger(__name__)
 
 
 class GatewayClient:
@@ -81,8 +84,21 @@ class GatewayClient:
             if msg.type is not aiohttp.WSMsgType.TEXT:
                 raise RuntimeError(f"got {msg}, but can't handle its type")
 
-            event = Event._from_dict(self.state, json.loads(msg.data))
-            await event._gateway_handle()
+            try:
+                event = Event._from_dict(self.state, json.loads(msg.data))
+                await event._gateway_handle()
+            except Exception as exc:
+                _log.critical(
+                    "Couldn't process an event, the gateway might now be in bad state."
+                    "\nPlease search for this issue at"
+                    " https://github.com/jack1142/Mutiny/issues and report it"
+                    " if someone else has not done it already.\n"
+                    "Be sure to include the payload data and the exception traceback"
+                    " logged below:\n%s",
+                    msg.data,
+                    exc_info=exc,
+                )
+                continue
             self.event_handler.dispatch(event)
 
     async def authenticate(self) -> None:
