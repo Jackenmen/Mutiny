@@ -14,6 +14,8 @@
 
 import asyncio
 import inspect
+import sys
+import traceback
 from typing import Any, Coroutine, Optional, Protocol, TypeVar, get_type_hints
 
 from ..events import Event
@@ -78,4 +80,11 @@ class EventHandler:
 
     def dispatch(self, event: Event) -> None:
         for listener in self.listeners.get(type(event), []):
-            asyncio.create_task(listener(event))
+            asyncio.create_task(self.call_listener(listener, event))
+
+    async def call_listener(self, listener: EventListener, event: Event) -> None:
+        try:
+            await listener(event)
+        except Exception:
+            print(f"Ignoring exception in {event}", file=sys.stderr)
+            traceback.print_exc()
