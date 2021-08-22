@@ -17,6 +17,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, final
 
 from ._internal.models.channel import Channel
+from ._internal.models.message import Message
 from ._internal.models.server import Member, Server
 from ._internal.models.user import RelationshipStatus, User
 
@@ -117,7 +118,11 @@ class ReadyEvent(Event):
 
 @final
 class MessageEvent(Event):
-    __slots__ = ()
+    __slots__ = ("message",)
+    message: Message
+
+    async def _gateway_handle(self) -> None:
+        self.message = Message(self._state, self.raw_data)
 
 
 @final

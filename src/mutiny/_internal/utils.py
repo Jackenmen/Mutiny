@@ -14,12 +14,15 @@
 
 from __future__ import annotations
 
-from typing import Callable, Generic, Optional, TypeVar, Union, overload
+import datetime
+from typing import Callable, Generic, Optional, TypedDict, TypeVar, Union, overload
+
+__all__ = ("cached_slot_property", "parse_datetime")
 
 _T = TypeVar("_T")
 _S = TypeVar("_S")
 
-__all__ = ("cached_slot_property",)
+_DateTimeData = TypedDict("_DateTimeData", {"$date": str})
 
 
 class cached_slot_property(Generic[_T, _S]):
@@ -49,3 +52,13 @@ class cached_slot_property(Generic[_T, _S]):
             ret = self.func(instance)
             setattr(instance, self.attr_name, ret)
             return ret
+
+
+def parse_datetime(
+    datetime_data: Optional[_DateTimeData],
+) -> Optional[datetime.datetime]:
+    if datetime_data is None:
+        return None
+    date_string = datetime_data["$date"].removeprefix("Z")
+    dt = datetime.datetime.fromisoformat(date_string)
+    return dt.astimezone(datetime.timezone.utc)
