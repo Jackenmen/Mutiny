@@ -16,6 +16,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, final
 
+from ._internal.models.channel import Channel
+from ._internal.models.server import Member, Server
+from ._internal.models.user import RelationshipStatus, User
+
 if TYPE_CHECKING:
     from ._internal.state import State
 
@@ -89,6 +93,26 @@ class PongEvent(Event):
 @final
 class ReadyEvent(Event):
     __slots__ = ()
+
+    async def _gateway_handle(self) -> None:
+        state = self._state
+        servers = state.servers = {
+            raw_data["_id"]: Server(state, raw_data)
+            for raw_data in self.raw_data["servers"]
+        }
+        state.channels = {
+            raw_data["_id"]: Channel._from_dict(state, raw_data)
+            for raw_data in self.raw_data["channels"]
+        }
+        for raw_data in self.raw_data["users"]:
+            user = User(state, raw_data)
+            state.users[user.id] = user
+            if user.relationship_status is RelationshipStatus.USER:
+                state.user = user
+
+        for raw_data in self.raw_data["members"]:
+            member = Member(state, raw_data)
+            servers[member.server_id]._members[member.user_id] = member
 
 
 @final
