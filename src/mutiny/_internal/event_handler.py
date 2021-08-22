@@ -14,6 +14,7 @@
 
 import asyncio
 import inspect
+import itertools
 import sys
 import traceback
 from typing import Any, Coroutine, Optional, Protocol, TypeVar, get_type_hints
@@ -70,7 +71,8 @@ class EventHandler:
                 if param.default is not inspect.Parameter.empty:
                     raise TypeError("Function has more than one required argument.")
 
-        if not (issubclass(event_cls, Event) and event_cls is not Event):
+        assert event_cls is not None
+        if not issubclass(event_cls, Event):
             raise TypeError(
                 "Type hint of first positional argument is not a subclass of Event."
             )
@@ -79,8 +81,11 @@ class EventHandler:
         listeners.append(listener)
 
     def dispatch(self, event: Event) -> None:
-        for listener in self.listeners.get(type(event), []):
-            asyncio.create_task(self.call_listener(listener, event))
+        # islice used to skip `object`
+        for cls in itertools.islice(reversed(event.__class__.__mro__), 1, None):
+            assert issubclass(cls, Event)
+            for listener in self.listeners.get(cls, []):
+                asyncio.create_task(self.call_listener(listener, event))
 
     async def call_listener(self, listener: EventListener, event: Event) -> None:
         try:
