@@ -17,7 +17,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Optional, final
 
-from .bases import Model, StatefulResource
+from .bases import Model, ParserData, StatefulResource, field
 
 if TYPE_CHECKING:
     from ..state import State
@@ -45,11 +45,7 @@ class AttachmentTag(Enum):
 
 
 class AttachmentMetadata(Model):
-    __slots__ = ("type",)
-
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        super().__init__(raw_data)
-        self.type = raw_data["type"]
+    type: str = field("type")
 
     def _from_dict(self, raw_data: dict[str, Any]) -> AttachmentMetadata:
         metadata_type = raw_data["type"]
@@ -79,22 +75,14 @@ class AudioMetadata(AttachmentMetadata):
 
 @final
 class ImageMetadata(AttachmentMetadata):
-    __slots__ = ("width", "height")
-
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        super().__init__(raw_data)
-        self.width = raw_data["width"]
-        self.height = raw_data["height"]
+    width: int = field("width")
+    height: int = field("height")
 
 
 @final
 class VideoMetadata(AttachmentMetadata):
-    __slots__ = ("width", "height")
-
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        super().__init__(raw_data)
-        self.width = raw_data["width"]
-        self.height = raw_data["height"]
+    width: int = field("width")
+    height: int = field("height")
 
 
 METADATA_TYPES = {
@@ -108,16 +96,18 @@ METADATA_TYPES = {
 
 @final
 class Attachment(StatefulResource):
-    __slots__ = ("tag", "size", "filename", "metadata", "content_type")
+    id: str = field("_id")
+    tag: AttachmentTag = field("tag", factory=True)
+    size: int = field("size")
+    filename: str = field("filename")
+    metadata: AttachmentMetadata = field("metadata", factory=True)
+    content_type: str = field("content_type")
 
-    def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
-        super().__init__(state, raw_data)
-        self.id: str = raw_data["_id"]
-        self.tag = AttachmentTag(raw_data["tag"])
-        self.size: int = raw_data["size"]
-        self.filename: str = raw_data["filename"]
-        self.metadata = AttachmentMetadata(raw_data["metadata"])
-        self.content_type: str = raw_data["content_type"]
+    def _tag_parser(self, parser_data: ParserData) -> AttachmentTag:
+        return AttachmentTag(parser_data.get_field())
+
+    def _metadata_parser(self, parser_data: ParserData) -> AttachmentMetadata:
+        return AttachmentMetadata._from_dict(parser_data.get_field())
 
     @classmethod
     def _from_raw_data(

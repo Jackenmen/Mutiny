@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from typing import Any, Optional, TypeVar, final
 
-from .bases import Model
+from .bases import Model, ParserData, field
 
 __all__ = (
     "EmbeddedSpecial",
@@ -37,11 +37,7 @@ __all__ = (
 
 
 class EmbeddedSpecial(Model):
-    __slots__ = ("type",)
-
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        super().__init__(raw_data)
-        self.type: str = raw_data["type"]
+    type: str = field("type")
 
     @classmethod
     def _from_dict(cls, raw_data: dict[str, Any]) -> EmbeddedSpecial:
@@ -70,32 +66,20 @@ class EmbeddedNone(EmbeddedSpecial):
 
 @final
 class EmbeddedYouTube(EmbeddedSpecial):
-    __slots__ = ("id",)
-
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        super().__init__(raw_data)
-        self.id: str = raw_data["id"]
+    id: str = field("id")
 
 
 @final
 class EmbeddedTwitch(EmbeddedSpecial):
-    __slots__ = ("content_type", "id")
-
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        super().__init__(raw_data)
-        # XXX: This is Enum: "Channel" "Clip" "Video"
-        self.content_type: str = raw_data["content_type"]
-        self.id: str = raw_data["id"]
+    id: str = field("id")
+    # XXX: This is Enum: "Channel" "Clip" "Video"
+    content_type: str = field("content_type")
 
 
 @final
 class EmbeddedSpotify(EmbeddedSpecial):
-    __slots__ = ("content_type", "id")
-
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        super().__init__(raw_data)
-        self.content_type: str = raw_data["content_type"]
-        self.id: str = raw_data["id"]
+    id: str = field("id")
+    content_type: str = field("content_type")
 
 
 @final
@@ -105,13 +89,9 @@ class EmbeddedSoundcloud(EmbeddedSpecial):
 
 @final
 class EmbeddedBandcamp(EmbeddedSpecial):
-    __slots__ = ("content_type", "id")
-
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        super().__init__(raw_data)
-        # XXX: This is Enum: "Album" "Track"
-        self.content_type: str = raw_data["content_type"]
-        self.id: str = raw_data["id"]
+    id: str = field("id")
+    # XXX: This is Enum: "Album" "Track"
+    content_type: str = field("content_type")
 
 
 EMBEDDED_SPECIAL_TYPES = {
@@ -128,15 +108,14 @@ _EmbeddedImageMixinT = TypeVar("_EmbeddedImageMixinT", bound="_EmbeddedImageMixi
 
 
 class _EmbeddedImageMixin(Model):
-    __slots__ = ()
-
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        super().__init__(raw_data)
-        self.url: str = raw_data["url"]
-        self.width: int = raw_data["width"]
-        self.height: int = raw_data["height"]
-        # XXX: this is Enum: "Large" "Preview"
-        self.size: str = raw_data["size"]
+    # This mixin needs to have empty slots to avoid multiple bases
+    # with slots in ImageEmbed
+    _EMPTY_SLOTS_ = True
+    url: str = field("url")
+    width: int = field("width")
+    height: int = field("height")
+    # XXX: this is Enum: "Large" "Preview"
+    size: str = field("size")
 
     @classmethod
     def _from_raw_data(
@@ -153,13 +132,9 @@ class EmbeddedImage(_EmbeddedImageMixin):
 
 @final
 class EmbeddedVideo(Model):
-    __slots__ = ("url", "width", "height")
-
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        super().__init__(raw_data)
-        self.url: str = raw_data["url"]
-        self.width: int = raw_data["width"]
-        self.height: int = raw_data["height"]
+    url: str = field("url")
+    width: int = field("width")
+    height: int = field("height")
 
     @classmethod
     def _from_raw_data(
@@ -171,11 +146,7 @@ class EmbeddedVideo(Model):
 
 
 class Embed(Model):
-    __slots__ = ("type",)
-
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        super().__init__(raw_data)
-        self.type: str = raw_data["type"]
+    type: str = field("type")
 
     @classmethod
     def _from_dict(cls, raw_data: dict[str, Any]) -> Embed:
@@ -196,30 +167,25 @@ class NoneEmbed(Embed):
 
 @final
 class WebsiteEmbed(Embed):
-    __slots__ = (
-        "url",
-        "special",
-        "title",
-        "description",
-        "image",
-        "video",
-        "site_name",
-        "icon_url",
-        "color",
-    )
+    url: Optional[str] = field("url", default=None)
+    special: Optional[EmbeddedSpecial] = field("special", factory=True, default=None)
+    title: Optional[str] = field("title", default=None)
+    description: Optional[str] = field("description", default=None)
+    image: Optional[EmbeddedImage] = field("image", factory=True, default=None)
+    video: Optional[EmbeddedVideo] = field("video", factory=True, default=None)
+    site_name: Optional[str] = field("site_name", default=None)
+    icon_url: Optional[str] = field("icon_url", default=None)
+    # XXX: maybe convert this to a consistent value
+    colour: Optional[str] = field("color", default=None)
 
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        super().__init__(raw_data)
-        self.url: Optional[str] = raw_data.get("url")
-        self.special = EmbeddedSpecial._from_raw_data(raw_data.get("special"))
-        self.title: Optional[str] = raw_data.get("title")
-        self.description: Optional[str] = raw_data.get("description")
-        self.image = EmbeddedImage._from_raw_data(raw_data.get("image"))
-        self.video = EmbeddedVideo._from_raw_data(raw_data.get("video"))
-        self.site_name: Optional[str] = raw_data.get("site_name")
-        self.icon_url: Optional[str] = raw_data.get("icon_url")
-        # XXX: maybe convert this to a consistent value
-        self.color: Optional[str] = raw_data.get("color")
+    def _special_parser(self, parser_data: ParserData) -> Optional[EmbeddedSpecial]:
+        return EmbeddedSpecial._from_raw_data(parser_data.get_field())
+
+    def _image_parser(self, parser_data: ParserData) -> Optional[EmbeddedImage]:
+        return EmbeddedImage._from_raw_data(parser_data.get_field())
+
+    def _video_parser(self, parser_data: ParserData) -> Optional[EmbeddedVideo]:
+        return EmbeddedVideo._from_raw_data(parser_data.get_field())
 
 
 @final

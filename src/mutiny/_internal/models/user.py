@@ -18,7 +18,15 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, Optional, final
 
 from .attachment import Attachment
-from .bases import BitField, Model, StatefulModel, StatefulResource, bit
+from .bases import (
+    BitField,
+    Model,
+    ParserData,
+    StatefulModel,
+    StatefulResource,
+    bit,
+    field,
+)
 
 if TYPE_CHECKING:
     from ..state import State
@@ -80,42 +88,28 @@ class Presence(Enum):
 
 @final
 class Status(Model):
-    __slots__ = ("text", "presence")
+    text: Optional[str] = field("text", default=None)
+    # Users who have never changed their presence do not have the `presence`.
+    # New users start with an Online presence,
+    # so that's what we should use in such case.
+    presence: Presence = field("presence", factory=True, default="Online")
 
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        super().__init__(raw_data)
-        self.text: Optional[str] = raw_data.get("text")
-        # Users who have never changed their presence do not have the `presence`.
-        # New users start with an Online presence,
-        # so that's what we should use in such case.
-        self.presence = Presence(raw_data.get("presence", "Online"))
+    def _presence_parser(self, parser_data: ParserData) -> Presence:
+        return Presence(parser_data.get_field())
 
 
 @final
 class Relationship(StatefulModel):
-    __slots__ = ("_state", "raw_data", "user_id", "status")
+    user_id: str = field("_id")
+    status: RelationshipStatus = field("status", factory=True)
 
-    def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
-        super().__init__(state, raw_data)
-        self.user_id = raw_data["_id"]
-        self.status = RelationshipStatus(raw_data["status"])
-
-    @classmethod
-    def _from_raw_data(
-        cls, state: State, raw_data: Optional[dict[str, Any]]
-    ) -> Optional[Relationship]:
-        if raw_data is None:
-            return None
-        return cls(state, raw_data)
+    def _status_parser(self, parser_data: ParserData) -> RelationshipStatus:
+        return RelationshipStatus(parser_data.get_field())
 
 
 @final
 class BotInfo(StatefulModel):
-    __slots__ = ("owner_id",)
-
-    def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
-        super().__init__(state, raw_data)
-        self.owner_id = raw_data["owner"]
+    owner_id: str = field("owner")
 
     @classmethod
     def _from_raw_data(
@@ -128,12 +122,11 @@ class BotInfo(StatefulModel):
 
 @final
 class UserProfile(StatefulModel):
-    __slots__ = ("content", "background")
+    content: Optional[str] = field("content", default=None)
+    background: Optional[Attachment] = field("background", factory=True, default=None)
 
-    def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
-        super().__init__(state, raw_data)
-        self.content = raw_data.get("content")
-        self.background = Attachment._from_raw_data(state, raw_data.get("background"))
+    def _background_parser(self, parser_data: ParserData) -> Optional[Attachment]:
+        return Attachment._from_raw_data(self._state, parser_data.get_field())
 
     @classmethod
     def _from_raw_data(
@@ -146,35 +139,49 @@ class UserProfile(StatefulModel):
 
 @final
 class User(StatefulResource):
-    __slots__ = (
-        "username",
-        "avatar",
-        "relations",
-        "badges",
-        "status",
-        "relationship_status",
-        "online",
-        "flags",
-        "bot",
-        "profile",
+    id: str = field("_id")
+    username: str = field("username")
+    avatar: Optional[Attachment] = field("avatar", factory=True, default=None)
+    relations: Optional[dict[str, Relationship]] = field(
+        "relations", factory=True, default=None
     )
+    badges: Badges = field("badges", factory=True, default=0)
+    status: Status = field("status", factory=True, default_factory=dict)
+    relationship_status: Optional[RelationshipStatus] = field(
+        "relationship", factory=True, default=None
+    )
+    online: bool = field("online")
+    flags: UserFlags = field("flags", factory=True, default=0)
+    bot: Optional[BotInfo] = field("bot", factory=True, default=None)
+    profile: Optional[UserProfile] = field("profile", factory=True, default=None)
 
-    def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
-        super().__init__(state, raw_data)
-        self.id: str = raw_data["_id"]
-        self.username: str = raw_data["username"]
-        self.avatar = Attachment._from_raw_data(state, raw_data.get("avatar"))
-        self.relations: Optional[dict[str, Relationship]] = None
-        if (relations_data := raw_data.get("relations", None)) is not None:
-            self.relations = {
-                data["_id"]: Relationship(state, data) for data in relations_data
-            }
-        self.badges = Badges(raw_data.get("badges", 0))
-        self.status = Status(raw_data.get("status", {}))
-        self.relationship_status = RelationshipStatus._from_raw_data(
-            raw_data.get("relationship")
-        )
-        self.online: Optional[bool] = raw_data["online"]
-        self.flags = UserFlags(raw_data.get("flags", 0))
-        self.bot = BotInfo._from_raw_data(state, raw_data.get("bot"))
-        self.profile = UserProfile._from_raw_data(state, raw_data.get("profile"))
+    def _avatar_parser(self, parser_data: ParserData) -> Optional[Attachment]:
+        return Attachment._from_raw_data(self._state, parser_data.get_field())
+
+    def _relations_parser(
+        self, parser_data: ParserData
+    ) -> Optional[dict[str, Relationship]]:
+        relations_data = parser_data.get_field()
+        if relations_data is None:
+            return None
+        return {data["_id"]: Relationship(self._state, data) for data in relations_data}
+
+    def _badges_parser(self, parser_data: ParserData) -> Badges:
+        return Badges(parser_data.get_field())
+
+    def _status_parser(self, parser_data: ParserData) -> Status:
+        return Status(parser_data.get_field())
+
+    def _relationship_status_parser(
+        self, parser_data: ParserData
+    ) -> Optional[RelationshipStatus]:
+        return RelationshipStatus._from_raw_data(parser_data.get_field())
+
+    def _flags_parser(self, parser_data: ParserData) -> UserFlags:
+        return UserFlags(parser_data.get_field())
+
+    def _bot_parser(self, parser_data: ParserData) -> Optional[BotInfo]:
+        return BotInfo._from_raw_data(self._state, parser_data.get_field())
+
+    def _profile_parser(self, parser_data: ParserData) -> Optional[UserProfile]:
+        return UserProfile._from_raw_data(self._state, parser_data.get_field())

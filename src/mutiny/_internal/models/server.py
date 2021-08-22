@@ -14,117 +14,115 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Optional, final
+from typing import Any, Optional, final
 
 from .attachment import Attachment
-from .bases import StatefulModel, StatefulResource
+from .bases import ParserData, StatefulModel, StatefulResource, field
 from .permissions import ChannelPermissions, ServerPermissions
-
-if TYPE_CHECKING:
-    from ..state import State
 
 __all__ = ("Category", "SystemMessageChannels", "Role", "Member", "Server")
 
 
 @final
 class Category(StatefulResource):
-    __slots__ = ("title", "channel_ids")
-
-    def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
-        super().__init__(state, raw_data)
-        self.id: str = raw_data["id"]
-        self.title: str = raw_data["title"]
-        self.channel_ids: list[str] = raw_data["channels"]
+    id: str = field("id")
+    title: str = field("title")
+    channel_ids: list[str] = field("channels")
 
 
 @final
 class SystemMessageChannels(StatefulModel):
-    __slots__ = ("user_joined_id", "user_left_id", "user_kicked_id", "user_banned_id")
-
-    def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
-        super().__init__(state, raw_data)
-        self.user_joined_id: Optional[str] = raw_data.get("user_joined")
-        self.user_left_id: Optional[str] = raw_data.get("user_left")
-        self.user_kicked_id: Optional[str] = raw_data.get("user_kicked")
-        self.user_banned_id: Optional[str] = raw_data.get("user_banned")
+    user_joined_id: Optional[str] = field("user_joined", default=None)
+    user_left_id: Optional[str] = field("user_left", default=None)
+    user_kicked_id: Optional[str] = field("user_kicked", default=None)
+    user_banned_id: Optional[str] = field("user_banned", default=None)
 
 
 @final
 class Role(StatefulModel):
-    __slots__ = (
-        "name",
-        "server_permissions",
-        "channel_permissions",
-        "colour",
-        "hoist",
-        "rank",
+    name: str = field("name")
+    server_permissions: ServerPermissions = field(keys=("permissions", 0), factory=True)
+    channel_permissions: ChannelPermissions = field(
+        keys=("permissions", 1), factory=True
     )
+    colour: Optional[str] = field("colour", default=None)
+    hoist: bool = field("hoist", default=False)
+    rank: int = field("rank")
 
-    def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
-        super().__init__(state, raw_data)
-        self.name = raw_data["name"]
-        self.server_permissions = ServerPermissions(raw_data["permissions"][0])
-        self.channel_permissions = ChannelPermissions(raw_data["permissions"][1])
-        self.hoist = raw_data.get("hoist", False)
-        self.rank = raw_data["rank"]
+    def _server_permissions_parser(self, parser_data: ParserData) -> ServerPermissions:
+        return ServerPermissions(parser_data.get_field())
+
+    def _channel_permissions_parser(
+        self, parser_data: ParserData
+    ) -> ChannelPermissions:
+        return ChannelPermissions(parser_data.get_field())
 
 
 @final
 class Member(StatefulModel):
-    __slots__ = ("server_id", "user_id", "nickname", "avatar", "role_ids")
+    server_id: str = field(keys=("_id", "server"))
+    user_id: str = field(keys=("_id", "user"))
+    nickname: Optional[str] = field("nickname", default=None)
+    avatar: Optional[Attachment] = field("avatar", factory=True, default=None)
+    role_ids: list[str] = field("roles", default_factory=list)
 
-    def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
-        super().__init__(state, raw_data)
-        self.server_id: str = raw_data["_id"]["server"]
-        self.user_id: str = raw_data["_id"]["user"]
-        self.nickname: Optional[str] = raw_data.get("nickname")
-        self.avatar = Attachment._from_raw_data(state, raw_data.get("avatar"))
-        self.role_ids: list[str] = raw_data.get("roles", [])
+    def _avatar_parser(self, parser_data: ParserData) -> Optional[Attachment]:
+        return Attachment._from_raw_data(self._state, parser_data.get_field())
 
 
 @final
 class Server(StatefulResource):
-    __slots__ = (
-        "nonce",
-        "owner_id",
-        "name",
-        "description",
-        "channel_ids",
-        "categories",
-        "system_message_channels",
-        "roles",
-        "default_server_permissions",
-        "default_channel_permissions",
-        "icon",
-        "banner",
-        "_members",
+    id: str = field("_id")
+    nonce: Optional[str] = field("nonce", default=None)
+    owner_id: str = field("owner")
+    name: str = field("name")
+    description: Optional[str] = field("description", default=None)
+    channel_ids: list[str] = field("channels")
+    categories: dict[str, Any] = field("categories", factory=True, default=[])
+    system_message_channels: SystemMessageChannels = field(
+        "system_messages", factory=True, default_factory=dict
     )
+    roles: dict[str, Any] = field("roles", factory=True, default={})
+    default_server_permissions: ServerPermissions = field(
+        keys=("default_permissions", 0), factory=True
+    )
+    default_channel_permissions: ChannelPermissions = field(
+        keys=("default_permissions", 1), factory=True
+    )
+    icon: Optional[Attachment] = field("icon", factory=True, default=None)
+    banner: Optional[Attachment] = field("banner", factory=True, default=None)
+    # small abuse that allows me to not define __init__ or parser
+    _members: dict[str, Member] = field("some placeholder", default_factory=dict)
 
-    def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
-        super().__init__(state, raw_data)
-        self.id: str = raw_data["_id"]
-        self.nonce: Optional[str] = raw_data.get("nonce")
-        self.owner_id: str = raw_data["owner"]
-        self.name: str = raw_data["name"]
-        self.description: Optional[str] = raw_data.get("description")
-        self.channel_ids: list[str] = raw_data["channels"]
-        self.categories: dict[str, Category] = {
-            category_data["id"]: Category(state, category_data)
-            for category_data in raw_data.get("categories", [])
+    def _categories_parser(self, parser_data: ParserData) -> dict[str, Any]:
+        return {
+            category_data["id"]: Category(self._state, category_data)
+            for category_data in parser_data.get_field()
         }
-        self.system_message_channels = SystemMessageChannels(
-            state, raw_data.get("system_messages", {})
-        )
-        self.roles: dict[str, Role] = {
-            role_id: Role(state, role_data)
-            for role_id, role_data in raw_data.get("roles", {}).items()
+
+    def _system_message_channels_parser(
+        self, parser_data: ParserData
+    ) -> SystemMessageChannels:
+        return SystemMessageChannels(self._state, parser_data.get_field())
+
+    def _roles_parser(self, parser_data: ParserData) -> dict[str, Any]:
+        return {
+            role_id: Role(self._state, role_data)
+            for role_id, role_data in parser_data.get_field().items()
         }
-        self.default_server_permissions = ServerPermissions(
-            raw_data["default_permissions"][0]
-        )
-        self.default_channel_permissions = ServerPermissions(
-            raw_data["default_permissions"][1]
-        )
-        self.icon = Attachment._from_raw_data(state, raw_data.get("icon"))
-        self.banner = Attachment._from_raw_data(state, raw_data.get("banner"))
-        self._members: dict[str, Member] = {}
+
+    def _default_server_permissions_parser(
+        self, parser_data: ParserData
+    ) -> ServerPermissions:
+        return ServerPermissions(parser_data.get_field())
+
+    def _default_channel_permissions_parser(
+        self, parser_data: ParserData
+    ) -> ChannelPermissions:
+        return ChannelPermissions(parser_data.get_field())
+
+    def _icon_parser(self, parser_data: ParserData) -> Optional[Attachment]:
+        return Attachment._from_raw_data(self._state, parser_data.get_field())
+
+    def _banner_parser(self, parser_data: ParserData) -> Optional[Attachment]:
+        return Attachment._from_raw_data(self._state, parser_data.get_field())

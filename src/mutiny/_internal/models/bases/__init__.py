@@ -13,15 +13,28 @@
 # limitations under the License.
 
 from .bit_field import BitField, bit
-from .models import Model, ResourceMixin, StatefulModel, StatefulResource
+from .models import (
+    InitFieldMissing,
+    Model,
+    ParserData,
+    ResourceMixin,
+    StatefulModel,
+    StatefulResource,
+    UpdateFieldMissing,
+    field,
+)
 
 __all__ = (
     # .bit_field
     "BitField",
     "bit",
     # .models
+    "InitFieldMissing",
     "Model",
+    "ParserData",
     "ResourceMixin",
     "StatefulModel",
     "StatefulResource",
+    "UpdateFieldMissing",
+    "field",
 )

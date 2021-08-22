@@ -17,7 +17,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Optional, final
 
 from .attachment import Attachment
-from .bases import StatefulResource
+from .bases import ParserData, StatefulResource, UpdateFieldMissing, field
 from .permissions import ChannelPermissions
 
 if TYPE_CHECKING:
@@ -35,13 +35,9 @@ __all__ = (
 
 
 class Channel(StatefulResource):
-    __slots__ = ("channel_type", "nonce")
-
-    def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
-        super().__init__(state, raw_data)
-        self.id: str = raw_data["_id"]
-        self.channel_type: str = raw_data["channel_type"]
-        self.nonce: Optional[str] = raw_data.get("nonce")
+    id: str = field("_id")
+    channel_type: str = field("channel_type")
+    nonce: Optional[str] = field("nonce", default=None)
 
     @classmethod
     def _from_dict(cls, state: State, raw_data: dict[str, Any]) -> Channel:
@@ -57,105 +53,100 @@ class UnknownChannel(Channel):
 
 @final
 class SavedMessages(Channel):
-    __slots__ = ("user_id",)
-
-    def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
-        super().__init__(state, raw_data)
-        self.user_id: str = raw_data["user"]
+    user_id: str = field("user")
 
 
 @final
 class DirectMessage(Channel):
-    __slots__ = ("active", "recipient_ids", "last_message_id")
-    active: bool
-    recipient_ids: list[str]
-    last_message_id: Optional[str]
+    active: bool = field("active")
+    recipient_ids: list[str] = field("recipients")
+    last_message_id: Optional[str] = field("last_message", factory=True, default={})
 
-    def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
-        super().__init__(state, raw_data)
-        self.active: bool = raw_data["active"]
-        self.recipient_ids: list[str] = raw_data["recipients"]
-        self.last_message_id: Optional[str] = raw_data.get("last_message", {}).get(
-            "_id"
-        )
+    def _last_message_id_parser(self, parser_data: ParserData) -> Optional[str]:
+        last_message_id = parser_data.get_field().get("_id")
+        if not parser_data.init and last_message_id is None:
+            raise UpdateFieldMissing(("last_message", "_id"))
+        return last_message_id
 
 
 @final
 class Group(Channel):
-    __slots__ = (
-        "recipient_ids",
-        "name",
-        "owner_id",
-        "description",
-        "last_message_id",
-        "icon",
-        "permissions",
-    )
+    recipient_ids: list[str] = field("recipients")
+    name: str = field("name")
+    owner_id: str = field("owner")
+    description: Optional[str] = field("description", default=None)
+    last_message_id: Optional[str] = field("last_message", factory=True, default={})
+    icon: Optional[Attachment] = field("icon", factory=True, default=None)
+    permissions: ChannelPermissions = field("permissions", factory=True, default=0)
 
-    def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
-        super().__init__(state, raw_data)
-        self.recipient_ids: list[str] = raw_data["recipients"]
-        self.name: str = raw_data["name"]
-        self.owner_id: str = raw_data["owner"]
-        self.description: Optional[str] = raw_data.get("description")
-        self.last_message_id: Optional[str] = raw_data.get("last_message", {}).get(
-            "_id"
-        )
-        self.icon = Attachment._from_raw_data(state, raw_data.get("icon"))
-        self.permissions = ChannelPermissions(raw_data.get("permissions", 0))
+    def _last_message_id_parser(self, parser_data: ParserData) -> Optional[str]:
+        return parser_data.get_field().get("_id")
+
+    def _icon_parser(self, parser_data: ParserData) -> Optional[Attachment]:
+        return Attachment._from_raw_data(self._state, parser_data.get_field())
+
+    def _permissions_parser(self, parser_data: ParserData) -> ChannelPermissions:
+        return ChannelPermissions(parser_data.get_field())
 
 
 @final
 class TextChannel(Channel):
-    __slots__ = (
-        "server_id",
-        "name",
-        "description",
-        "icon",
-        "default_permissions",
-        "role_permissions",
-        "last_message_id",
+    server_id: str = field("server")
+    name: str = field("name")
+    description: Optional[str] = field("description", default=None)
+    icon: Optional[Attachment] = field("icon", factory=True, default=None)
+    default_permissions: ChannelPermissions = field(
+        "default_permissions", factory=True, default=0
     )
+    role_permissions: dict[str, ChannelPermissions] = field(
+        "role_permissions", factory=True, default={}
+    )
+    last_message_id: Optional[str] = field("last_message", default=None)
 
-    def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
-        super().__init__(state, raw_data)
-        self.server_id: str = raw_data["server"]
-        self.name: str = raw_data["name"]
-        self.description: Optional[str] = raw_data.get("description")
-        self.icon = Attachment._from_raw_data(state, raw_data.get("icon"))
-        self.default_permissions = ChannelPermissions(
-            raw_data.get("default_permissions", 0)
-        )
-        self.role_permissions: dict[str, ChannelPermissions] = {
+    def _icon_parser(self, parser_data: ParserData) -> Optional[Attachment]:
+        return Attachment._from_raw_data(self._state, parser_data.get_field())
+
+    def _default_permissions_parser(
+        self, parser_data: ParserData
+    ) -> ChannelPermissions:
+        return ChannelPermissions(parser_data.get_field())
+
+    def _role_permissions_parser(
+        self, parser_data: ParserData
+    ) -> dict[str, ChannelPermissions]:
+        return {
             role_id: ChannelPermissions(perm_value)
-            for role_id, perm_value in raw_data.get("role_permissions", {}).items()
+            for role_id, perm_value in parser_data.get_field().items()
         }
-        self.last_message_id: Optional[str] = raw_data.get("last_message")
 
 
 @final
 class VoiceChannel(Channel):
-    __slots__ = (
-        "server_id",
-        "name",
-        "description",
-        "icon",
-        "default_permissions",
-        "role_permissions",
+    server_id: str = field("server")
+    name: str = field("name")
+    description: Optional[str] = field("description", default=None)
+    icon: Optional[Attachment] = field("icon", factory=True, default=None)
+    default_permissions: ChannelPermissions = field(
+        "default_permissions", factory=True, default=0
+    )
+    role_permissions: dict[str, ChannelPermissions] = field(
+        "role_permissions", factory=True, default={}
     )
 
-    def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
-        super().__init__(state, raw_data)
-        self.server_id: str = raw_data["server"]
-        self.name: str = raw_data["name"]
-        self.description: Optional[str] = raw_data.get("description")
-        self.icon = Attachment._from_raw_data(state, raw_data.get("icon"))
-        self.default_permissions = ChannelPermissions(
-            raw_data.get("default_permissions", 0)
-        )
-        self.role_permissions: dict[str, ChannelPermissions] = {
+    def _icon_parser(self, parser_data: ParserData) -> Optional[Attachment]:
+        return Attachment._from_raw_data(self._state, parser_data.get_field())
+
+    def _default_permissions_parser(
+        self, parser_data: ParserData
+    ) -> ChannelPermissions:
+        return ChannelPermissions(parser_data.get_field())
+
+    def _role_permissions_parser(
+        self, parser_data: ParserData
+    ) -> dict[str, ChannelPermissions]:
+        return {
             role_id: ChannelPermissions(perm_value)
-            for role_id, perm_value in raw_data.get("role_permissions", {}).items()
+            for role_id, perm_value in parser_data.get_field().items()
         }
 
 

@@ -14,15 +14,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Optional, Union, final
+import datetime
+from typing import Any, Optional, final
 
 from ..utils import parse_datetime
 from .attachment import Attachment
-from .bases import Model, StatefulResource
+from .bases import Model, ParserData, StatefulResource, field
 from .embed import Embed
-
-if TYPE_CHECKING:
-    from ..state import State
 
 __all__ = (
     "SystemMessage",
@@ -42,11 +40,7 @@ __all__ = (
 
 
 class SystemMessage(Model):
-    __slots__ = ("type",)
-
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        super().__init__(raw_data)
-        self.type = raw_data["type"]
+    type: str = field("type")
 
     @classmethod
     def _from_dict(cls, raw_data: dict[str, Any]) -> SystemMessage:
@@ -64,95 +58,55 @@ class UnknownSystemMessage(SystemMessage):
 
 @final
 class TextSystemMessage(SystemMessage):
-    __slots__ = ("content",)
-
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        super().__init__(raw_data)
-        self.content = raw_data["content"]
+    content: str = field("content")
 
 
 @final
 class UserAddedSystemMessage(SystemMessage):
-    __slots__ = ("target_id", "actor_id")
-
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        super().__init__(raw_data)
-        self.target_id = raw_data["id"]
-        self.actor_id = raw_data["by"]
+    target_id: int = field("id")
+    actor_id: int = field("by")
 
 
 @final
 class UserRemovedSystemMessage(SystemMessage):
-    __slots__ = ("target_id", "actor_id")
-
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        super().__init__(raw_data)
-        self.target_id = raw_data["id"]
-        self.actor_id = raw_data["by"]
+    target_id: int = field("id")
+    actor_id: int = field("by")
 
 
 @final
 class UserJoinedSystemMessage(SystemMessage):
-    __slots__ = ("user_id",)
-
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        super().__init__(raw_data)
-        self.user_id = raw_data["id"]
+    user_id: str = field("id")
 
 
 @final
 class UserLeftSystemMessage(SystemMessage):
-    __slots__ = ("user_id",)
-
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        super().__init__(raw_data)
-        self.user_id = raw_data["id"]
+    user_id: str = field("id")
 
 
 @final
 class UserKickedSystemMessage(SystemMessage):
-    __slots__ = ("target_id",)
-
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        super().__init__(raw_data)
-        self.target_id = raw_data["id"]
+    target_id: str = field("id")
 
 
 @final
 class UserBannedSystemMessage(SystemMessage):
-    __slots__ = ("target_id",)
-
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        super().__init__(raw_data)
-        self.target_id = raw_data["id"]
+    target_id: str = field("id")
 
 
 @final
 class ChannelRenamedSystemMessage(SystemMessage):
-    __slots__ = ("new_name", "actor_id")
-
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        super().__init__(raw_data)
-        self.new_name = raw_data["name"]
-        self.actor_id = raw_data["by"]
+    new_name: str = field("name")
+    actor_id: int = field("by")
 
 
 @final
 class ChannelDescriptionChangedSystemMessage(SystemMessage):
-    __slots__ = ("actor_id",)
-
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        super().__init__(raw_data)
-        self.actor_id = raw_data["by"]
+    actor_id: int = field("by")
 
 
 @final
 class ChannelIconChangedSystemMessage(SystemMessage):
-    __slots__ = ("actor_id",)
-
-    def __init__(self, raw_data: dict[str, Any]) -> None:
-        super().__init__(raw_data)
-        self.actor_id = raw_data["by"]
+    actor_id: int = field("by")
 
 
 SYSTEM_MESSAGE_TYPES = {
@@ -171,42 +125,35 @@ SYSTEM_MESSAGE_TYPES = {
 
 @final
 class Message(StatefulResource):
-    __slots__ = (
-        "nonce",
-        "channel_id",
-        "author_id",
-        "content",
-        "system_message",
-        "attachments",
-        "edited_at",
-        "embeds",
-        "mention_ids",
-        "reply_ids",
-    )
+    id: str = field("_id")
+    nonce: Optional[str] = field("nonce", default=None)
+    channel_id: str = field("channel")
+    author_id: str = field("author")
+    content: Optional[str] = field("content", factory=True)
+    system_message: Optional[SystemMessage] = field("content", factory=True)
+    attachments: list[Attachment] = field("attachments", factory=True, default=[])
+    edited_at: Optional[datetime.datetime] = field("edited", factory=True, default=None)
+    embeds: list[Embed] = field("embeds", factory=True, default=[])
+    mention_ids: list[str] = field("mentions", default_factory=list)
+    reply_ids: list[str] = field("replies", default_factory=list)
 
-    def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
-        super().__init__(state, raw_data)
-        self.id: str = raw_data["_id"]
-        self.nonce: Optional[str] = raw_data.get("nonce")
-        self.channel_id: str = raw_data["channel"]
-        self.author_id: str = raw_data["author"]
-        self.content: Optional[str]
-        self.system_message: Optional[SystemMessage]
-        content: Union[dict[str, Any], str] = raw_data["content"]
-        if isinstance(content, str):
-            self.content = content
-            self.system_message = None
-        else:
-            self.content = None
-            self.system_message = SystemMessage._from_dict(content)
+    def _content_parser(self, parser_data: ParserData) -> Optional[str]:
+        content = parser_data.get_field()
+        return content if isinstance(content, str) else None
 
-        self.attachments = [
-            Attachment(state, attachment_data)
-            for attachment_data in raw_data.get("attachments", [])
-        ]
-        self.edited_at = parse_datetime(raw_data.get("edited"))
-        self.embeds = [
-            Embed._from_dict(embed_data) for embed_data in raw_data.get("embeds", [])
-        ]
-        self.mention_ids: list[str] = raw_data.get("mentions", [])
-        self.reply_ids: list[str] = raw_data.get("replies", [])
+    def _system_message_parser(
+        self, parser_data: ParserData
+    ) -> Optional[SystemMessage]:
+        content = parser_data.get_field()
+        return (
+            SystemMessage._from_dict(content) if not isinstance(content, str) else None
+        )
+
+    def _attachments_parser(self, parser_data: ParserData) -> list[Attachment]:
+        return [Attachment(self._state, data) for data in parser_data.get_field()]
+
+    def _edited_at_parser(self, parser_data: ParserData) -> Optional[datetime.datetime]:
+        return parse_datetime(parser_data.get_field())
+
+    def _embeds_parser(self, parser_data: ParserData) -> list[Embed]:
+        return [Embed._from_dict(data) for data in parser_data.get_field()]
