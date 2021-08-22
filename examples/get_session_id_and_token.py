@@ -41,7 +41,7 @@ def _get_captcha_key() -> str:
     return data["features"]["captcha"]["key"]
 
 
-def _create_session(post_vars: dict[str, Any]) -> None:
+def _create_session(post_vars: dict[str, Any]) -> dict[str, Any]:
     request_data = {
         "email": post_vars["email"],
         "password": post_vars["password"],
@@ -78,7 +78,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_response(400)
             self.send_header("content-type", "text/plain")
             self.end_headers()
-            self.wfile.write("Bad Request")
+            self.wfile.write(b"Bad Request")
             return
 
         content_length = int(self.headers["content-length"])
@@ -97,7 +97,7 @@ class Server(HTTPServer):
         webbrowser.open_new_tab("http://127.0.0.1:8000")
 
 
-def main():
+def main() -> None:
     logging.basicConfig(level=logging.INFO)
     server = Server(("", 8000), RequestHandler)
     logging.info("Starting server...\n")
