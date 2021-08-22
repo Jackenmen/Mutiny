@@ -57,10 +57,13 @@ class Event:
         self.type: str = raw_data["type"]
 
     @classmethod
-    def from_dict(cls, state: State, raw_data: dict[str, Any]) -> Event:
+    def _from_dict(cls, state: State, raw_data: dict[str, Any]) -> Event:
         event_type = raw_data["type"]
         event_cls = EVENTS.get(event_type, UnknownEvent)
         return event_cls(state, raw_data)
+
+    async def _gateway_handle(self) -> None:
+        pass
 
 
 class UnknownEvent(Event):

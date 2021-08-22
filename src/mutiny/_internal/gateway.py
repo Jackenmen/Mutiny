@@ -81,7 +81,8 @@ class GatewayClient:
             if msg.type is not aiohttp.WSMsgType.TEXT:
                 raise RuntimeError(f"got {msg}, but can't handle its type")
 
-            event = Event.from_dict(self.state, json.loads(msg.data))
+            event = Event._from_dict(self.state, json.loads(msg.data))
+            await event._gateway_handle()
             self.event_handler.dispatch(event)
 
     async def authenticate(self) -> None:
