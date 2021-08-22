@@ -68,12 +68,12 @@ class GatewayClient:
     async def close(self) -> None:
         if not self.ws.closed:
             await self.ws.close()
-        self.stop_heartbeat()
 
     async def connect(self) -> None:
-        self.ws = await self.session.ws_connect(self.url, timeout=30.0, max_msg_size=0)
+        self.ws = await self.session.ws_connect(
+            self.url, timeout=30.0, max_msg_size=0, heartbeat=10.0
+        )
         await self.authenticate()
-        self.start_heartbeat()
 
         await self.poll_loop()
 
@@ -127,20 +127,6 @@ class GatewayClient:
         if time:
             payload["time"] = time
         await self.send_json(payload)
-
-    def start_heartbeat(self) -> None:
-        self.stop_heartbeat()
-        self.heartbeat_task = asyncio.create_task(self.heartbeat_loop())
-
-    def stop_heartbeat(self) -> None:
-        if self.heartbeat_task is not None:
-            self.heartbeat_task.cancel()
-            self.heartbeat_task = None
-
-    async def heartbeat_loop(self) -> None:
-        while not self.ws.closed:
-            await self.ping()
-            await asyncio.sleep(10)
 
     async def send_json(self, payload: Any) -> None:
         await self.ws.send_json(payload)
