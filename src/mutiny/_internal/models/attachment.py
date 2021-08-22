@@ -47,7 +47,8 @@ class AttachmentTag(Enum):
 class AttachmentMetadata(Model):
     type: str = field("type")
 
-    def _from_dict(self, raw_data: dict[str, Any]) -> AttachmentMetadata:
+    @classmethod
+    def _from_dict(cls, raw_data: dict[str, Any]) -> AttachmentMetadata:
         metadata_type = raw_data["type"]
         metadata_cls = METADATA_TYPES.get(metadata_type, UnknownMetadata)
         return metadata_cls(raw_data)
