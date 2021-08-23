@@ -69,6 +69,7 @@ class Client:
         self._event_handler = EventHandler()
         self.api_url = api_url
         self._state = State()
+        self._closed = False
 
     async def start(self) -> None:
         await self.login()
@@ -83,6 +84,8 @@ class Client:
         await self._gateway.connect()
 
     async def close(self) -> None:
+        if self._closed:
+            return
         await self._gateway.close()
         await self._session.close()
 
