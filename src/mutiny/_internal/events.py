@@ -16,14 +16,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Optional, final
 
-from ._internal.models.channel import Channel
-from ._internal.models.message import Message
-from ._internal.models.server import Member, Role, Server
-from ._internal.models.user import Relationship, RelationshipStatus, User
-from ._internal.utils import cached_slot_property
+from .models.channel import Channel
+from .models.message import Message
+from .models.server import Member, Role, Server
+from .models.user import Relationship, RelationshipStatus, User
+from .utils import cached_slot_property
 
 if TYPE_CHECKING:
-    from ._internal.state import State
+    from .state import State
 
 __all__ = (
     "Event",
