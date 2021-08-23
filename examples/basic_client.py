@@ -26,7 +26,20 @@ async def on_message(event: events.MessageEvent) -> None:
     print(event.raw_data)
 
 
-# Client.start() is the main entry-point for the Client and it does not return
-# until the client is closed or gateway connection is lost.
+async def main():
+    try:
+        # Client.start() is the main entry-point for the Client and it does not return
+        # until the client is closed or gateway connection is lost.
+        await client.start()
+    finally:
+        # Client.close() should be called to ensure proper cleanup
+        # before exiting the application
+        await client.close()
 
-asyncio.run(client.start())
+
+if __name__ == "__main__":
+    # Note: This example is meant to show basic flow of running Mutiny's Client,
+    # and is therefore just using asyncio.run(). In normal asynchronous application,
+    # you will often not want to use asyncio.run() as a main entry point as it is
+    # lacking in some aspects.
+    asyncio.run(main())
