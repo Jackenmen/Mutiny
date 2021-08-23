@@ -25,6 +25,9 @@ class BitField:
     def __init__(self, value: int) -> None:
         self.value = value
 
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} value={self.value}>"
+
 
 @final
 class bit:
