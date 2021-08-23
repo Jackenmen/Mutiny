@@ -24,7 +24,13 @@ py -3.9 -m pip install -U mutiny
 
 ## Documentation
 
-Read [Mutiny's documentation](https://mutiny.readthedocs.io)
+There is no documentation yet, you can look at [examples folder](examples/)
+if you want to get the hang of library's basic functionality.
+
+## Links
+
+[Mutiny's official Revolt server](https://app.revolt.chat/invite/GGW5WsgZ)
+[GitHub Sponsors](https://github.com/sponsors/jack1142)
 
 ## License
 
