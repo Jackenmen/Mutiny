@@ -17,6 +17,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Optional, final
 
+from . import rewrite_module
 from .attachment import Attachment
 from .bases import (
     BitField,
@@ -46,6 +47,7 @@ __all__ = (
 
 
 @final
+@rewrite_module
 class Badges(BitField):
     developer = bit(1)
     translator = bit(2)
@@ -56,6 +58,7 @@ class Badges(BitField):
 
 
 @final
+@rewrite_module
 class UserFlags(BitField):
     suspended = bit(1)
     deleted = bit(2)
@@ -63,6 +66,7 @@ class UserFlags(BitField):
 
 
 @final
+@rewrite_module
 class RelationshipStatus(Enum):
     BLOCKED = "Blocked"
     BLOCKED_OTHER = "BlockedOther"
@@ -80,6 +84,7 @@ class RelationshipStatus(Enum):
 
 
 @final
+@rewrite_module
 class Presence(Enum):
     BUSY = "Busy"
     IDLE = "Idle"
@@ -88,6 +93,7 @@ class Presence(Enum):
 
 
 @final
+@rewrite_module
 class Status(Model):
     text: Optional[str] = field("text", default=None)
     # Users who have never changed their presence do not have the `presence`.
@@ -100,6 +106,7 @@ class Status(Model):
 
 
 @final
+@rewrite_module
 class Relationship(StatefulModel):
     user_id: str = field("_id")
     status: RelationshipStatus = field("status", factory=True)
@@ -109,6 +116,7 @@ class Relationship(StatefulModel):
 
 
 @final
+@rewrite_module
 class BotInfo(StatefulModel):
     owner_id: str = field("owner")
 
@@ -122,6 +130,7 @@ class BotInfo(StatefulModel):
 
 
 @final
+@rewrite_module
 class UserProfile(StatefulModel):
     content: Optional[str] = field("content", default=None)
     background: Optional[Attachment] = field("background", factory=True, default=None)
@@ -139,6 +148,7 @@ class UserProfile(StatefulModel):
 
 
 @final
+@rewrite_module
 class User(StatefulResource):
     id: str = field("_id")
     username: str = field("username")

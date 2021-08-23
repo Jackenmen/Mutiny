@@ -14,12 +14,14 @@
 
 from typing import final
 
+from . import rewrite_module
 from .bases import BitField, bit
 
 __all__ = ("UserPermissions", "ChannelPermissions", "ServerPermissions")
 
 
 @final
+@rewrite_module
 class UserPermissions(BitField):
     access = bit(1)
     view_profile = bit(2)
@@ -28,6 +30,7 @@ class UserPermissions(BitField):
 
 
 @final
+@rewrite_module
 class ChannelPermissions(BitField):
     view = bit(1)
     send_message = bit(2)
@@ -40,6 +43,7 @@ class ChannelPermissions(BitField):
 
 
 @final
+@rewrite_module
 class ServerPermissions(BitField):
     view = bit(1)
     manage_roles = bit(2)

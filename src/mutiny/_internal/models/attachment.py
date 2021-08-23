@@ -17,6 +17,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Optional, final
 
+from . import rewrite_module
 from .bases import Model, ParserData, StatefulResource, field
 
 if TYPE_CHECKING:
@@ -36,6 +37,7 @@ __all__ = (
 
 
 @final
+@rewrite_module
 class AttachmentTag(Enum):
     ATTACHMENTS = "attachments"
     AVATARS = "avatars"
@@ -44,6 +46,7 @@ class AttachmentTag(Enum):
     ICONS = "icons"
 
 
+@rewrite_module
 class AttachmentMetadata(Model):
     type: str = field("type")
 
@@ -55,32 +58,38 @@ class AttachmentMetadata(Model):
 
 
 @final
+@rewrite_module
 class UnknownMetadata(AttachmentMetadata):
     __slots__ = ()
 
 
 @final
+@rewrite_module
 class FileMetadata(AttachmentMetadata):
     __slots__ = ()
 
 
 @final
+@rewrite_module
 class TextMetadata(AttachmentMetadata):
     __slots__ = ()
 
 
 @final
+@rewrite_module
 class AudioMetadata(AttachmentMetadata):
     __slots__ = ()
 
 
 @final
+@rewrite_module
 class ImageMetadata(AttachmentMetadata):
     width: int = field("width")
     height: int = field("height")
 
 
 @final
+@rewrite_module
 class VideoMetadata(AttachmentMetadata):
     width: int = field("width")
     height: int = field("height")
@@ -96,6 +105,7 @@ METADATA_TYPES = {
 
 
 @final
+@rewrite_module
 class Attachment(StatefulResource):
     id: str = field("_id")
     tag: AttachmentTag = field("tag", factory=True)

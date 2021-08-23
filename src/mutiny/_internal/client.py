@@ -22,12 +22,14 @@ from .event_handler import EventHandler, EventListener, EventT_contra
 from .gateway import HAS_MSGPACK, GatewayClient, GatewayMessageFormat
 from .rest import RESTClient
 from .state import State
+from .utils import module_rewriter
 
 T = TypeVar("T")
 
 __all__ = ("Client",)
 
 
+@module_rewriter()
 class Client:
     _session: aiohttp.ClientSession
     _gateway: GatewayClient
