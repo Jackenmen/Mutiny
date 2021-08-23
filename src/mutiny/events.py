@@ -20,6 +20,7 @@ from ._internal.models.channel import Channel
 from ._internal.models.message import Message
 from ._internal.models.server import Member, Role, Server
 from ._internal.models.user import Relationship, RelationshipStatus, User
+from ._internal.utils import cached_slot_property
 
 if TYPE_CHECKING:
     from ._internal.state import State
@@ -78,7 +79,11 @@ class UnknownEvent(Event):
 
 @final
 class ErrorEvent(Event):
-    __slots__ = ()
+    __slots__ = ("error",)
+
+    def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
+        super().__init__(state, raw_data)
+        self.error: str = raw_data["error"]
 
 
 @final
@@ -88,7 +93,11 @@ class AuthenticatedEvent(Event):
 
 @final
 class PongEvent(Event):
-    __slots__ = ()
+    __slots__ = ("_cs_time",)
+
+    @cached_slot_property
+    def time(self) -> int:
+        return self.raw_data["time"]
 
 
 @final
@@ -129,12 +138,24 @@ class MessageEvent(Event):
 
 @final
 class MessageUpdateEvent(Event):
-    __slots__ = ()
+    __slots__ = ("_cs_data",)
+
+    @cached_slot_property
+    def data(self) -> dict[str, Any]:
+        return self.raw_data["data"]
 
 
 @final
 class MessageDeleteEvent(Event):
-    __slots__ = ()
+    __slots__ = ("_cs_message_id", "_cs_channel_id")
+
+    @cached_slot_property
+    def message_id(self) -> str:
+        return self.raw_data["id"]
+
+    @cached_slot_property
+    def channel_id(self) -> str:
+        return self.raw_data["channel"]
 
 
 @final
@@ -221,17 +242,54 @@ class ChannelGroupLeaveEvent(Event):
 
 @final
 class ChannelStartTypingEvent(Event):
-    __slots__ = ()
+    __slots__ = ("_cs_channel_id", "_cs_channel")
+
+    @cached_slot_property
+    def channel_id(self) -> str:
+        return self.raw_data["id"]
+
+    @cached_slot_property
+    def channel(self) -> Channel:
+        return self._state.channels[self.channel_id]
 
 
 @final
 class ChannelStopTypingEvent(Event):
-    __slots__ = ()
+    __slots__ = ("_cs_channel_id", "_cs_channel")
+
+    @cached_slot_property
+    def channel_id(self) -> str:
+        return self.raw_data["id"]
+
+    @cached_slot_property
+    def channel(self) -> Channel:
+        return self._state.channels[self.channel_id]
 
 
 @final
 class ChannelAckEvent(Event):
-    __slots__ = ()
+    __slots__ = (
+        "_cs_channel_id",
+        "_cs_channel",
+        "_cs_user_id",
+        "_cs_message_id",
+    )
+
+    @cached_slot_property
+    def channel_id(self) -> str:
+        return self.raw_data["id"]
+
+    @cached_slot_property
+    def channel(self) -> Channel:
+        return self._state.channels[self.channel_id]
+
+    @cached_slot_property
+    def user_id(self) -> str:
+        return self.raw_data["user"]
+
+    @cached_slot_property
+    def message_id(self) -> str:
+        return self.raw_data["message_id"]
 
 
 @final
