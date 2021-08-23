@@ -16,10 +16,11 @@
 
 __version__ = "0.2.0a0"
 
-from . import events
+from . import events, models
 from ._internal.client import Client
 
 __all__ = (
     "events",
+    "models",
     "Client",
 )
