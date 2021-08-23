@@ -29,6 +29,7 @@ from .bases import (
 )
 
 if TYPE_CHECKING:
+    from ...events import UserUpdateEvent
     from ..state import State
 
 __all__ = (
@@ -185,3 +186,22 @@ class User(StatefulResource):
 
     def _profile_parser(self, parser_data: ParserData) -> Optional[UserProfile]:
         return UserProfile._from_raw_data(self._state, parser_data.get_field())
+
+    def _update_from_event(self, event: UserUpdateEvent) -> None:
+        if event.clear == "ProfileContent":
+            if self.profile is not None:
+                self.profile.raw_data.pop("content", None)
+                self.profile.content = None
+        elif event.clear == "ProfileBackground":
+            if self.profile is not None:
+                self.profile.raw_data.pop("background", None)
+                self.profile.background = None
+        elif event.clear == "StatusText":
+            self.status.raw_data.pop("text", None)
+            self.status.text = None
+        elif event.clear == "Avatar":
+            self.raw_data["avatar"] = None
+            self.avatar = None
+        # XXX: updates to `profile` are currently not handled
+        # due to the use of dot notation
+        self._update_from_dict(event.data)

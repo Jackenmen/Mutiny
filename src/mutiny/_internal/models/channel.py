@@ -14,14 +14,22 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Optional, final
+from typing import TYPE_CHECKING, Any, Optional, Union, final
 
+from ... import events
 from .attachment import Attachment
 from .bases import ParserData, StatefulResource, UpdateFieldMissing, field
 from .permissions import ChannelPermissions
 
 if TYPE_CHECKING:
     from ..state import State
+
+    _UpdateEvent = Union[
+        events.ChannelUpdateEvent,
+        events.ChannelGroupJoinEvent,
+        events.ChannelGroupLeaveEvent,
+        events.MessageEvent,
+    ]
 
 __all__ = (
     "Channel",
@@ -44,6 +52,10 @@ class Channel(StatefulResource):
         channel_type = raw_data["channel_type"]
         channel_cls = CHANNEL_TYPES.get(channel_type, UnknownChannel)
         return channel_cls(state, raw_data)
+
+    def _update_from_event(self, event: _UpdateEvent) -> None:
+        if type(event) is events.ChannelUpdateEvent:
+            self._update_from_dict(event.data)
 
 
 @final
@@ -68,6 +80,24 @@ class DirectMessage(Channel):
             raise UpdateFieldMissing(("last_message", "_id"))
         return last_message_id
 
+    def _update_from_event(self, event: _UpdateEvent) -> None:
+        if type(event) is events.MessageEvent:
+            if event.message.content is not None:
+                self.raw_data["last_message"] = {
+                    "_id": event.message.id,
+                    "author": event.message.author_id,
+                    "short": event.message.content[:128],
+                }
+                self.last_message_id = event.message.id
+        elif type(event) is events.ChannelGroupJoinEvent:
+            # this list is the same object as raw_data["recipients"]
+            self.recipient_ids.append(event.user_id)
+        elif type(event) is events.ChannelGroupLeaveEvent:
+            # this list is the same object as raw_data["recipients"]
+            self.recipient_ids.remove(event.user_id)
+        else:
+            self._update_from_dict(event.data)
+
 
 @final
 class Group(Channel):
@@ -87,6 +117,30 @@ class Group(Channel):
 
     def _permissions_parser(self, parser_data: ParserData) -> ChannelPermissions:
         return ChannelPermissions(parser_data.get_field())
+
+    def _update_from_event(self, event: _UpdateEvent) -> None:
+        if type(event) is events.MessageEvent:
+            if event.message.content is not None:
+                self.raw_data["last_message"] = {
+                    "_id": event.message.id,
+                    "author": event.message.author_id,
+                    "short": event.message.content[:128],
+                }
+                self.last_message_id = event.message.id
+        elif type(event) is events.ChannelGroupJoinEvent:
+            # this list is the same object as raw_data["recipients"]
+            self.recipient_ids.append(event.user_id)
+        elif type(event) is events.ChannelGroupLeaveEvent:
+            # this list is the same object as raw_data["recipients"]
+            self.recipient_ids.remove(event.user_id)
+        else:
+            if event.clear == "Icon":
+                self.raw_data.pop("icon", None)
+                self.icon = None
+            elif event.clear == "Description":
+                self.raw_data.pop("description", None)
+                self.description = None
+            self._update_from_dict(event.data)
 
 
 @final
@@ -119,6 +173,19 @@ class TextChannel(Channel):
             for role_id, perm_value in parser_data.get_field().items()
         }
 
+    def _update_from_event(self, event: _UpdateEvent) -> None:
+        if type(event) is events.MessageEvent:
+            if event.message.content is not None:
+                self.raw_data["last_message"] = self.last_message_id = event.message.id
+        elif type(event) is events.ChannelUpdateEvent:
+            if event.clear == "Icon":
+                self.raw_data.pop("icon", None)
+                self.icon = None
+            elif event.clear == "Description":
+                self.raw_data.pop("description", None)
+                self.description = None
+            self._update_from_dict(event.data)
+
 
 @final
 class VoiceChannel(Channel):
@@ -148,6 +215,16 @@ class VoiceChannel(Channel):
             role_id: ChannelPermissions(perm_value)
             for role_id, perm_value in parser_data.get_field().items()
         }
+
+    def _update_from_event(self, event: _UpdateEvent) -> None:
+        if type(event) is events.ChannelUpdateEvent:
+            if event.clear == "Icon":
+                self.raw_data.pop("icon", None)
+                self.icon = None
+            elif event.clear == "Description":
+                self.raw_data.pop("description", None)
+                self.description = None
+            self._update_from_dict(event.data)
 
 
 CHANNEL_TYPES = {

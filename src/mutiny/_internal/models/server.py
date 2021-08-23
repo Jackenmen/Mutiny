@@ -14,11 +14,18 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional, final
+from typing import TYPE_CHECKING, Any, Optional, final
 
 from .attachment import Attachment
 from .bases import ParserData, StatefulModel, StatefulResource, field
 from .permissions import ChannelPermissions, ServerPermissions
+
+if TYPE_CHECKING:
+    from ...events import (
+        ServerMemberUpdateEvent,
+        ServerRoleUpdateEvent,
+        ServerUpdateEvent,
+    )
 
 __all__ = ("Category", "SystemMessageChannels", "Role", "Member", "Server")
 
@@ -57,6 +64,11 @@ class Role(StatefulModel):
     ) -> ChannelPermissions:
         return ChannelPermissions(parser_data.get_field())
 
+    def _update_from_event(self, event: ServerRoleUpdateEvent) -> None:
+        if event.clear == "Colour":
+            self.colour = None
+        self._update_from_dict(event.data)
+
 
 @final
 class Member(StatefulModel):
@@ -68,6 +80,13 @@ class Member(StatefulModel):
 
     def _avatar_parser(self, parser_data: ParserData) -> Optional[Attachment]:
         return Attachment._from_raw_data(self._state, parser_data.get_field())
+
+    def _update_from_event(self, event: ServerMemberUpdateEvent) -> None:
+        if event.clear == "Nickname":
+            self.nickname = None
+        elif event.clear == "Avatar":
+            self.avatar = None
+        self._update_from_dict(event.data)
 
 
 @final
@@ -126,3 +145,15 @@ class Server(StatefulResource):
 
     def _banner_parser(self, parser_data: ParserData) -> Optional[Attachment]:
         return Attachment._from_raw_data(self._state, parser_data.get_field())
+
+    def _update_from_event(self, event: ServerUpdateEvent) -> None:
+        if event.clear == "Icon":
+            self.raw_data.pop("icon", None)
+            self.icon = None
+        elif event.clear == "Banner":
+            self.raw_data.pop("banner", None)
+            self.banner = None
+        elif event.clear == "Description":
+            self.raw_data.pop("description", None)
+            self.description = None
+        self._update_from_dict(event.data)
