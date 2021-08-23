@@ -14,11 +14,15 @@
 
 from __future__ import annotations
 
+from enum import Enum
 from typing import Any, Optional, TypeVar, final
 
 from .bases import Model, ParserData, field
 
 __all__ = (
+    "ImageSize",
+    "TwitchType",
+    "BandcampType",
     "EmbeddedSpecial",
     "EmbeddedUnknown",
     "EmbeddedNone",
@@ -34,6 +38,22 @@ __all__ = (
     "WebsiteEmbed",
     "ImageEmbed",
 )
+
+
+class ImageSize(Enum):
+    LARGE = "Large"
+    PREVIEW = "Preview"
+
+
+class TwitchType(Enum):
+    CHANNEL = "Channel"
+    CLIP = "Clip"
+    VIDEO = "Video"
+
+
+class BandcampType(Enum):
+    ALBUM = "Album"
+    TRACK = "Track"
 
 
 class EmbeddedSpecial(Model):
@@ -72,8 +92,10 @@ class EmbeddedYouTube(EmbeddedSpecial):
 @final
 class EmbeddedTwitch(EmbeddedSpecial):
     id: str = field("id")
-    # XXX: This is Enum: "Channel" "Clip" "Video"
-    content_type: str = field("content_type")
+    content_type: TwitchType = field("content_type", factory=True)
+
+    def _content_type_parser(self, parser_data: ParserData) -> TwitchType:
+        return TwitchType(parser_data.get_field())
 
 
 @final
@@ -90,8 +112,10 @@ class EmbeddedSoundcloud(EmbeddedSpecial):
 @final
 class EmbeddedBandcamp(EmbeddedSpecial):
     id: str = field("id")
-    # XXX: This is Enum: "Album" "Track"
-    content_type: str = field("content_type")
+    content_type: BandcampType = field("content_type", factory=True)
+
+    def _content_type_parser(self, parser_data: ParserData) -> BandcampType:
+        return BandcampType(parser_data.get_field())
 
 
 EMBEDDED_SPECIAL_TYPES = {
@@ -114,8 +138,10 @@ class _EmbeddedImageMixin(Model):
     url: str = field("url")
     width: int = field("width")
     height: int = field("height")
-    # XXX: this is Enum: "Large" "Preview"
-    size: str = field("size")
+    size: ImageSize = field("size", factory=True)
+
+    def _size_parser(self, parser_data: ParserData) -> ImageSize:
+        return ImageSize(parser_data.get_field())
 
     @classmethod
     def _from_raw_data(
