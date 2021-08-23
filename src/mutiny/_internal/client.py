@@ -19,7 +19,7 @@ import aiohttp
 from ..events import Event
 from .authentication_data import AuthenticationData
 from .event_handler import EventHandler, EventListener, EventT_contra
-from .gateway import GatewayClient
+from .gateway import HAS_MSGPACK, GatewayClient, GatewayMessageFormat
 from .rest import RESTClient
 from .state import State
 
@@ -41,6 +41,7 @@ class Client:
         user_id: None = ...,
         session_token: None = ...,
         api_url: str = ...,
+        gateway_format: Optional[GatewayMessageFormat] = ...,
     ) -> None:
         ...
 
@@ -52,6 +53,7 @@ class Client:
         user_id: str,
         session_token: str,
         api_url: str = ...,
+        gateway_format: Optional[GatewayMessageFormat] = ...,
     ) -> None:
         ...
 
@@ -62,12 +64,20 @@ class Client:
         user_id: Optional[str] = None,
         session_token: Optional[str] = None,
         api_url: str = "https://api.revolt.chat",
+        gateway_format: Optional[GatewayMessageFormat] = None,
     ) -> None:
         self._authentication_data = AuthenticationData(
             token=token, user_id=user_id, session_token=session_token
         )
         self._event_handler = EventHandler()
         self.api_url = api_url
+        if gateway_format == "msgpack" and not HAS_MSGPACK:
+            raise RuntimeError(
+                "'msgpack' format requires you to install Mutiny with `msgpack` extra."
+            )
+        if gateway_format is None:
+            gateway_format = "msgpack" if HAS_MSGPACK else "json"
+        self._gateway_format: GatewayMessageFormat = gateway_format
         self._state = State()
         self._closed = False
 
