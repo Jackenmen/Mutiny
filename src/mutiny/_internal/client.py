@@ -81,6 +81,9 @@ class Client:
         self._state = State()
         self._closed = False
 
+    def __repr__(self) -> str:
+        return f"<mutiny.{self.__class__.__name__} object at {hex(id(self))}>"
+
     async def start(self) -> None:
         await self.login()
         await self.connect()

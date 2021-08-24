@@ -112,7 +112,14 @@ class ParserData:
 
 
 class _ModelField:
-    __slots__ = ("_keys", "_factory", "_default", "_default_factory", "_parser")
+    __slots__ = (
+        "_keys",
+        "_factory",
+        "_default",
+        "_default_factory",
+        "_repr",
+        "_parser",
+    )
 
     def __init__(
         self,
@@ -122,6 +129,7 @@ class _ModelField:
         factory: bool,
         default: Any,
         default_factory: Optional[Callable[[], Any]],
+        repr: bool,
     ) -> None:
         if key is not None and keys:
             raise TypeError("`key` and `keys` can't both be passed!")
@@ -135,6 +143,7 @@ class _ModelField:
         self._factory = factory
         self._default = default
         self._default_factory = default_factory
+        self._repr = repr
 
     def __set_name__(self, owner: type, name: str) -> None:
         if type(owner) is not _ModelMeta:
@@ -171,6 +180,7 @@ def field(
     factory: bool = False,
     default: Any = ...,
     default_factory: Optional[Callable[[], Any]] = None,
+    repr: bool = True,
 ) -> Any:
     return _ModelField(
         key,
@@ -178,6 +188,7 @@ def field(
         factory=factory,
         default=default,
         default_factory=default_factory,
+        repr=repr,
     )
 
 
@@ -232,6 +243,14 @@ class Model(metaclass=_ModelMeta):
     def __init__(self, raw_data: dict[str, Any]) -> None:
         self.raw_data = raw_data
         self._update_from_dict(raw_data, init=True)
+
+    def __repr__(self) -> str:
+        # default implementation, can be quite long but should be useful
+        field_reprs = []
+        for attr_name, field in self.__class__._MODEL_FIELDS.items():
+            if field._repr:
+                field_reprs.append(f"{attr_name}={getattr(self, attr_name)!r}")
+        return f"<{self.__class__.__name__} {' '.join(field_reprs)}>"
 
     def _update_from_dict(
         self, partial_data: dict[str, Any], *, init: bool = False

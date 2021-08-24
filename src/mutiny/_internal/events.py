@@ -62,6 +62,9 @@ class Event:
         self.raw_data = raw_data
         self.type: str = raw_data["type"]
 
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} raw_data={self.raw_data!r}>"
+
     @classmethod
     def _from_dict(cls, state: State, raw_data: dict[str, Any]) -> Event:
         event_type = raw_data["type"]
@@ -75,6 +78,11 @@ class Event:
 @final
 class UnknownEvent(Event):
     __slots__ = ()
+
+    def __repr__(self) -> str:
+        return (
+            f"<{self.__class__.__name__} type={self.type} raw_data={self.raw_data!r}>"
+        )
 
 
 @final
