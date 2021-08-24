@@ -17,7 +17,6 @@ from __future__ import annotations
 from enum import Enum
 from typing import Any, Optional, TypeVar, final
 
-from . import rewrite_module
 from .bases import Model, ParserData, field
 
 __all__ = (
@@ -41,26 +40,22 @@ __all__ = (
 )
 
 
-@rewrite_module
 class ImageSize(Enum):
     LARGE = "Large"
     PREVIEW = "Preview"
 
 
-@rewrite_module
 class TwitchType(Enum):
     CHANNEL = "Channel"
     CLIP = "Clip"
     VIDEO = "Video"
 
 
-@rewrite_module
 class BandcampType(Enum):
     ALBUM = "Album"
     TRACK = "Track"
 
 
-@rewrite_module
 class EmbeddedSpecial(Model):
     type: str = field("type")
 
@@ -80,25 +75,21 @@ class EmbeddedSpecial(Model):
 
 
 @final
-@rewrite_module
 class EmbeddedUnknown(EmbeddedSpecial):
     __slots__ = ()
 
 
 @final
-@rewrite_module
 class EmbeddedNone(EmbeddedSpecial):
     __slots__ = ()
 
 
 @final
-@rewrite_module
 class EmbeddedYouTube(EmbeddedSpecial):
     id: str = field("id")
 
 
 @final
-@rewrite_module
 class EmbeddedTwitch(EmbeddedSpecial):
     id: str = field("id")
     content_type: TwitchType = field("content_type", factory=True)
@@ -108,20 +99,17 @@ class EmbeddedTwitch(EmbeddedSpecial):
 
 
 @final
-@rewrite_module
 class EmbeddedSpotify(EmbeddedSpecial):
     id: str = field("id")
     content_type: str = field("content_type")
 
 
 @final
-@rewrite_module
 class EmbeddedSoundcloud(EmbeddedSpecial):
     __slots__ = ()
 
 
 @final
-@rewrite_module
 class EmbeddedBandcamp(EmbeddedSpecial):
     id: str = field("id")
     content_type: BandcampType = field("content_type", factory=True)
@@ -164,13 +152,11 @@ class _EmbeddedImageMixin(Model):
         return cls(raw_data)
 
 
-@rewrite_module
 class EmbeddedImage(_EmbeddedImageMixin):
     __slots__ = ("url", "width", "height", "size")
 
 
 @final
-@rewrite_module
 class EmbeddedVideo(Model):
     url: str = field("url")
     width: int = field("width")
@@ -185,7 +171,6 @@ class EmbeddedVideo(Model):
         return cls(raw_data)
 
 
-@rewrite_module
 class Embed(Model):
     type: str = field("type")
 
@@ -197,19 +182,16 @@ class Embed(Model):
 
 
 @final
-@rewrite_module
 class UnknownEmbed(Embed):
     __slots__ = ()
 
 
 @final
-@rewrite_module
 class NoneEmbed(Embed):
     __slots__ = ()
 
 
 @final
-@rewrite_module
 class WebsiteEmbed(Embed):
     url: Optional[str] = field("url", default=None)
     special: Optional[EmbeddedSpecial] = field("special", factory=True, default=None)
@@ -233,7 +215,6 @@ class WebsiteEmbed(Embed):
 
 
 @final
-@rewrite_module
 class ImageEmbed(_EmbeddedImageMixin, Embed):
     __slots__ = ()
 

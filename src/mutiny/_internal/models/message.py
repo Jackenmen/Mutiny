@@ -18,7 +18,6 @@ import datetime
 from typing import Any, Optional, final
 
 from ..utils import parse_datetime
-from . import rewrite_module
 from .attachment import Attachment
 from .bases import Model, ParserData, StatefulResource, field
 from .embed import Embed
@@ -40,7 +39,6 @@ __all__ = (
 )
 
 
-@rewrite_module
 class SystemMessage(Model):
     type: str = field("type")
 
@@ -54,70 +52,59 @@ class SystemMessage(Model):
 
 
 @final
-@rewrite_module
 class UnknownSystemMessage(SystemMessage):
     __slots__ = ()
 
 
 @final
-@rewrite_module
 class TextSystemMessage(SystemMessage):
     content: str = field("content")
 
 
 @final
-@rewrite_module
 class UserAddedSystemMessage(SystemMessage):
     target_id: int = field("id")
     actor_id: int = field("by")
 
 
 @final
-@rewrite_module
 class UserRemovedSystemMessage(SystemMessage):
     target_id: int = field("id")
     actor_id: int = field("by")
 
 
 @final
-@rewrite_module
 class UserJoinedSystemMessage(SystemMessage):
     user_id: str = field("id")
 
 
 @final
-@rewrite_module
 class UserLeftSystemMessage(SystemMessage):
     user_id: str = field("id")
 
 
 @final
-@rewrite_module
 class UserKickedSystemMessage(SystemMessage):
     target_id: str = field("id")
 
 
 @final
-@rewrite_module
 class UserBannedSystemMessage(SystemMessage):
     target_id: str = field("id")
 
 
 @final
-@rewrite_module
 class ChannelRenamedSystemMessage(SystemMessage):
     new_name: str = field("name")
     actor_id: int = field("by")
 
 
 @final
-@rewrite_module
 class ChannelDescriptionChangedSystemMessage(SystemMessage):
     actor_id: int = field("by")
 
 
 @final
-@rewrite_module
 class ChannelIconChangedSystemMessage(SystemMessage):
     actor_id: int = field("by")
 
@@ -137,7 +124,6 @@ SYSTEM_MESSAGE_TYPES = {
 
 
 @final
-@rewrite_module
 class Message(StatefulResource):
     id: str = field("_id")
     nonce: Optional[str] = field("nonce", default=None)

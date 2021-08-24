@@ -17,7 +17,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Optional, Union, final
 
 from ... import events
-from . import rewrite_module
 from .attachment import Attachment
 from .bases import ParserData, StatefulResource, UpdateFieldMissing, field
 from .permissions import ChannelPermissions
@@ -43,7 +42,6 @@ __all__ = (
 )
 
 
-@rewrite_module
 class Channel(StatefulResource):
     id: str = field("_id")
     channel_type: str = field("channel_type")
@@ -61,19 +59,16 @@ class Channel(StatefulResource):
 
 
 @final
-@rewrite_module
 class UnknownChannel(Channel):
     __slots__ = ()
 
 
 @final
-@rewrite_module
 class SavedMessages(Channel):
     user_id: str = field("user")
 
 
 @final
-@rewrite_module
 class DirectMessage(Channel):
     active: bool = field("active")
     recipient_ids: list[str] = field("recipients")
@@ -105,7 +100,6 @@ class DirectMessage(Channel):
 
 
 @final
-@rewrite_module
 class Group(Channel):
     recipient_ids: list[str] = field("recipients")
     name: str = field("name")
@@ -150,7 +144,6 @@ class Group(Channel):
 
 
 @final
-@rewrite_module
 class TextChannel(Channel):
     server_id: str = field("server")
     name: str = field("name")
@@ -195,7 +188,6 @@ class TextChannel(Channel):
 
 
 @final
-@rewrite_module
 class VoiceChannel(Channel):
     server_id: str = field("server")
     name: str = field("name")

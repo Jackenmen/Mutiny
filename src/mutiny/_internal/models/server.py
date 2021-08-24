@@ -16,7 +16,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Optional, final
 
-from . import rewrite_module
 from .attachment import Attachment
 from .bases import ParserData, StatefulModel, StatefulResource, field
 from .permissions import ChannelPermissions, ServerPermissions
@@ -32,7 +31,6 @@ __all__ = ("Category", "SystemMessageChannels", "Role", "Member", "Server")
 
 
 @final
-@rewrite_module
 class Category(StatefulResource):
     id: str = field("id")
     title: str = field("title")
@@ -40,7 +38,6 @@ class Category(StatefulResource):
 
 
 @final
-@rewrite_module
 class SystemMessageChannels(StatefulModel):
     user_joined_id: Optional[str] = field("user_joined", default=None)
     user_left_id: Optional[str] = field("user_left", default=None)
@@ -49,7 +46,6 @@ class SystemMessageChannels(StatefulModel):
 
 
 @final
-@rewrite_module
 class Role(StatefulModel):
     name: str = field("name")
     server_permissions: ServerPermissions = field(keys=("permissions", 0), factory=True)
@@ -75,7 +71,6 @@ class Role(StatefulModel):
 
 
 @final
-@rewrite_module
 class Member(StatefulModel):
     server_id: str = field(keys=("_id", "server"))
     user_id: str = field(keys=("_id", "user"))
@@ -95,7 +90,6 @@ class Member(StatefulModel):
 
 
 @final
-@rewrite_module
 class Server(StatefulResource):
     id: str = field("_id")
     nonce: Optional[str] = field("nonce", default=None)

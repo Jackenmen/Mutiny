@@ -20,10 +20,7 @@ from .models.channel import Channel
 from .models.message import Message
 from .models.server import Member, Role, Server
 from .models.user import Relationship, RelationshipStatus, User
-from .utils import cached_slot_property, module_rewriter
-
-rewrite_module = module_rewriter(".events")
-
+from .utils import cached_slot_property
 
 if TYPE_CHECKING:
     from .state import State
@@ -57,7 +54,6 @@ __all__ = (
 )
 
 
-@rewrite_module
 class Event:
     __slots__ = ("_state", "raw_data", "type")
 
@@ -77,13 +73,11 @@ class Event:
 
 
 @final
-@rewrite_module
 class UnknownEvent(Event):
     __slots__ = ()
 
 
 @final
-@rewrite_module
 class ErrorEvent(Event):
     __slots__ = ("error",)
 
@@ -93,13 +87,11 @@ class ErrorEvent(Event):
 
 
 @final
-@rewrite_module
 class AuthenticatedEvent(Event):
     __slots__ = ()
 
 
 @final
-@rewrite_module
 class PongEvent(Event):
     __slots__ = ("_cs_time",)
 
@@ -109,7 +101,6 @@ class PongEvent(Event):
 
 
 @final
-@rewrite_module
 class ReadyEvent(Event):
     __slots__ = ()
 
@@ -135,7 +126,6 @@ class ReadyEvent(Event):
 
 
 @final
-@rewrite_module
 class MessageEvent(Event):
     __slots__ = ("message",)
     message: Message
@@ -147,7 +137,6 @@ class MessageEvent(Event):
 
 
 @final
-@rewrite_module
 class MessageUpdateEvent(Event):
     __slots__ = ("_cs_data",)
 
@@ -157,7 +146,6 @@ class MessageUpdateEvent(Event):
 
 
 @final
-@rewrite_module
 class MessageDeleteEvent(Event):
     __slots__ = ("_cs_message_id", "_cs_channel_id")
 
@@ -171,7 +159,6 @@ class MessageDeleteEvent(Event):
 
 
 @final
-@rewrite_module
 class ChannelCreateEvent(Event):
     __slots__ = ("channel_id", "channel", "server_id")
     channel: Channel
@@ -189,7 +176,6 @@ class ChannelCreateEvent(Event):
 
 
 @final
-@rewrite_module
 class ChannelUpdateEvent(Event):
     __slots__ = ("channel_id", "channel", "data", "clear")
     channel: Channel
@@ -206,7 +192,6 @@ class ChannelUpdateEvent(Event):
 
 
 @final
-@rewrite_module
 class ChannelDeleteEvent(Event):
     __slots__ = ("channel_id", "channel")
     channel: Optional[Channel]
@@ -223,7 +208,6 @@ class ChannelDeleteEvent(Event):
 
 
 @final
-@rewrite_module
 class ChannelGroupJoinEvent(Event):
     __slots__ = ("channel_id", "channel", "user_id")
     channel: Channel
@@ -240,7 +224,6 @@ class ChannelGroupJoinEvent(Event):
 
 
 @final
-@rewrite_module
 class ChannelGroupLeaveEvent(Event):
     __slots__ = ("channel_id", "channel", "user_id")
     channel: Channel
@@ -258,7 +241,6 @@ class ChannelGroupLeaveEvent(Event):
 
 
 @final
-@rewrite_module
 class ChannelStartTypingEvent(Event):
     __slots__ = ("_cs_channel_id", "_cs_channel")
 
@@ -272,7 +254,6 @@ class ChannelStartTypingEvent(Event):
 
 
 @final
-@rewrite_module
 class ChannelStopTypingEvent(Event):
     __slots__ = ("_cs_channel_id", "_cs_channel")
 
@@ -286,7 +267,6 @@ class ChannelStopTypingEvent(Event):
 
 
 @final
-@rewrite_module
 class ChannelAckEvent(Event):
     __slots__ = (
         "_cs_channel_id",
@@ -313,7 +293,6 @@ class ChannelAckEvent(Event):
 
 
 @final
-@rewrite_module
 class ServerUpdateEvent(Event):
     __slots__ = ("server_id", "server", "data", "clear")
     server: Server
@@ -330,7 +309,6 @@ class ServerUpdateEvent(Event):
 
 
 @final
-@rewrite_module
 class ServerDeleteEvent(Event):
     __slots__ = ("server_id", "server")
     server: Server
@@ -344,7 +322,6 @@ class ServerDeleteEvent(Event):
 
 
 @final
-@rewrite_module
 class ServerMemberUpdateEvent(Event):
     __slots__ = ("server_id", "server", "user_id", "data", "clear")
     server: Server
@@ -364,7 +341,6 @@ class ServerMemberUpdateEvent(Event):
 
 
 @final
-@rewrite_module
 class ServerMemberJoinEvent(Event):
     __slots__ = ("server_id", "user_id", "member")
     member: Member
@@ -384,7 +360,6 @@ class ServerMemberJoinEvent(Event):
 
 
 @final
-@rewrite_module
 class ServerMemberLeaveEvent(Event):
     __slots__ = ("server_id", "server", "user_id")
     server: Server
@@ -402,7 +377,6 @@ class ServerMemberLeaveEvent(Event):
 
 
 @final
-@rewrite_module
 class ServerRoleUpdateEvent(Event):
     __slots__ = ("server_id", "server", "role_id", "role", "data", "clear")
     server: Server
@@ -427,7 +401,6 @@ class ServerRoleUpdateEvent(Event):
 
 
 @final
-@rewrite_module
 class ServerRoleDeleteEvent(Event):
     __slots__ = ("server_id", "server", "role_id", "role")
     server: Server
@@ -444,7 +417,6 @@ class ServerRoleDeleteEvent(Event):
 
 
 @final
-@rewrite_module
 class UserUpdateEvent(Event):
     __slots__ = ("user_id", "user", "data", "clear")
 
@@ -462,7 +434,6 @@ class UserUpdateEvent(Event):
 
 
 @final
-@rewrite_module
 class UserRelationshipEvent(Event):
     __slots__ = ("self_id", "user_id", "status")
 

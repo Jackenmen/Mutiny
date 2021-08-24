@@ -21,7 +21,6 @@ __all__ = ("cached_slot_property", "parse_datetime")
 
 _T = TypeVar("_T")
 _S = TypeVar("_S")
-_TypeT = TypeVar("_TypeT", bound=type)
 
 _DateTimeData = TypedDict("_DateTimeData", {"$date": str})
 
@@ -63,11 +62,3 @@ def parse_datetime(
     date_string = datetime_data["$date"].removeprefix("Z")
     dt = datetime.datetime.fromisoformat(date_string)
     return dt.astimezone(datetime.timezone.utc)
-
-
-def module_rewriter(submodule_name: str = "") -> Callable[[_TypeT], _TypeT]:
-    def rewrite_module(obj: _TypeT, /) -> _TypeT:
-        obj.__module__ = f"mutiny{submodule_name}"
-        return obj
-
-    return rewrite_module
