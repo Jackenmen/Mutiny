@@ -105,7 +105,7 @@ class Client:
     def add_listener(
         self, listener: EventListener, *, event_cls: Optional[type[Event]] = None
     ) -> None:
-        self._event_handler.add_listener(listener)
+        self._event_handler.add_listener(listener, event_cls=event_cls)
 
     def listen(
         self, event_cls: Optional[type[Event]] = None
