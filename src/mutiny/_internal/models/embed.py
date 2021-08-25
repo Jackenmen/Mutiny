@@ -14,15 +14,12 @@
 
 from __future__ import annotations
 
-from enum import Enum
 from typing import Any, Optional, TypeVar, final
 
+from ..enums import BandcampType, ImageSize, TwitchType
 from .bases import Model, ParserData, field
 
 __all__ = (
-    "ImageSize",
-    "TwitchType",
-    "BandcampType",
     "EmbeddedSpecial",
     "EmbeddedUnknown",
     "EmbeddedNone",
@@ -38,22 +35,6 @@ __all__ = (
     "WebsiteEmbed",
     "ImageEmbed",
 )
-
-
-class ImageSize(Enum):
-    LARGE = "Large"
-    PREVIEW = "Preview"
-
-
-class TwitchType(Enum):
-    CHANNEL = "Channel"
-    CLIP = "Clip"
-    VIDEO = "Video"
-
-
-class BandcampType(Enum):
-    ALBUM = "Album"
-    TRACK = "Track"
 
 
 class EmbeddedSpecial(Model):

@@ -14,16 +14,15 @@
 
 from __future__ import annotations
 
-from enum import Enum
 from typing import TYPE_CHECKING, Any, Optional, final
 
+from ..enums import AttachmentTag
 from .bases import Model, ParserData, StatefulResource, field
 
 if TYPE_CHECKING:
     from ..state import State
 
 __all__ = (
-    "AttachmentTag",
     "AttachmentMetadata",
     "UnknownMetadata",
     "FileMetadata",
@@ -33,15 +32,6 @@ __all__ = (
     "VideoMetadata",
     "Attachment",
 )
-
-
-@final
-class AttachmentTag(Enum):
-    ATTACHMENTS = "attachments"
-    AVATARS = "avatars"
-    BACKGROUNDS = "backgrounds"
-    BANNERS = "banners"
-    ICONS = "icons"
 
 
 class AttachmentMetadata(Model):

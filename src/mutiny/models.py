@@ -15,7 +15,6 @@
 from ._internal.models.attachment import (
     Attachment,
     AttachmentMetadata,
-    AttachmentTag,
     AudioMetadata,
     FileMetadata,
     ImageMetadata,
@@ -33,7 +32,6 @@ from ._internal.models.channel import (
     VoiceChannel,
 )
 from ._internal.models.embed import (
-    BandcampType,
     Embed,
     EmbeddedBandcamp,
     EmbeddedImage,
@@ -45,9 +43,7 @@ from ._internal.models.embed import (
     EmbeddedVideo,
     EmbeddedYouTube,
     ImageEmbed,
-    ImageSize,
     NoneEmbed,
-    TwitchType,
     UnknownEmbed,
     WebsiteEmbed,
 )
@@ -81,9 +77,7 @@ from ._internal.models.server import (
 from ._internal.models.user import (
     Badges,
     BotInfo,
-    Presence,
     Relationship,
-    RelationshipStatus,
     Status,
     User,
     UserFlags,
@@ -94,7 +88,6 @@ __all__ = (
     # .attachment
     "Attachment",
     "AttachmentMetadata",
-    "AttachmentTag",
     "AudioMetadata",
     "FileMetadata",
     "ImageMetadata",
@@ -110,7 +103,6 @@ __all__ = (
     "UnknownChannel",
     "VoiceChannel",
     # .embed
-    "BandcampType",
     "Embed",
     "EmbeddedBandcamp",
     "EmbeddedImage",
@@ -122,9 +114,7 @@ __all__ = (
     "EmbeddedVideo",
     "EmbeddedYouTube",
     "ImageEmbed",
-    "ImageSize",
     "NoneEmbed",
-    "TwitchType",
     "UnknownEmbed",
     "WebsiteEmbed",
     # .message
@@ -154,9 +144,7 @@ __all__ = (
     # .user
     "Badges",
     "BotInfo",
-    "Presence",
     "Relationship",
-    "RelationshipStatus",
     "Status",
     "User",
     "UserFlags",

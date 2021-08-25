@@ -14,9 +14,9 @@
 
 from __future__ import annotations
 
-from enum import Enum
 from typing import TYPE_CHECKING, Any, Optional, final
 
+from ..enums import Presence, RelationshipStatus
 from .attachment import Attachment
 from .bases import (
     BitField,
@@ -35,8 +35,6 @@ if TYPE_CHECKING:
 __all__ = (
     "Badges",
     "UserFlags",
-    "RelationshipStatus",
-    "Presence",
     "Status",
     "Relationship",
     "BotInfo",
@@ -60,31 +58,6 @@ class UserFlags(BitField):
     suspended = bit(1)
     deleted = bit(2)
     banned = bit(4)
-
-
-@final
-class RelationshipStatus(Enum):
-    BLOCKED = "Blocked"
-    BLOCKED_OTHER = "BlockedOther"
-    FRIEND = "Friend"
-    INCOMING = "Incoming"
-    NONE = "None"
-    OUTGOING = "Outgoing"
-    USER = "User"
-
-    @classmethod
-    def _from_raw_data(cls, raw_data: Optional[str]) -> Optional[RelationshipStatus]:
-        if raw_data is None:
-            return None
-        return cls(raw_data)
-
-
-@final
-class Presence(Enum):
-    BUSY = "Busy"
-    IDLE = "Idle"
-    INVISIBLE = "Invisible"
-    ONLINE = "Online"
 
 
 @final

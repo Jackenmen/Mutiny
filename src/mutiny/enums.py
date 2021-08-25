@@ -12,16 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Async ready API wrapper for Revolt API written in Python."""
-
-__version__ = "0.3.1a0"
-
-from . import enums, events, models
-from ._internal.client import Client
+from ._internal.enums import (
+    AttachmentTag,
+    BandcampType,
+    ImageSize,
+    Presence,
+    RelationshipStatus,
+    TwitchType,
+)
 
 __all__ = (
-    "enums",
-    "events",
-    "models",
-    "Client",
+    "AttachmentTag",
+    "BandcampType",
+    "ImageSize",
+    "Presence",
+    "RelationshipStatus",
+    "TwitchType",
 )
