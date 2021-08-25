@@ -100,6 +100,7 @@ class GatewayClient:
         await self.authenticate()
 
         await self.poll_loop()
+        _log.info("Websocket closed with code %s.", self.ws.close_code)
 
     async def poll_loop(self) -> None:
         async for msg in self.ws:
