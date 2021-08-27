@@ -340,7 +340,8 @@ class ServerMemberUpdateEvent(Event):
 
 @final
 class ServerMemberJoinEvent(Event):
-    __slots__ = ("server_id", "user_id", "member")
+    __slots__ = ("server_id", "server", "user_id", "member")
+    server: Server
     member: Member
 
     def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
@@ -351,8 +352,8 @@ class ServerMemberJoinEvent(Event):
     async def _gateway_handle(self) -> None:
         # TODO(REST): fetch server first if we are the ones that joined
         # note: above might get resolved by https://github.com/revoltchat/delta/pull/44
-        server = self._state.servers[self.server_id]
-        self.member = server._members[self.user_id] = Member(
+        self.server = self._state.servers[self.server_id]
+        self.member = self.server._members[self.user_id] = Member(
             self._state, {"_id": {"server": self.server_id, "user": self.user_id}}
         )
 
