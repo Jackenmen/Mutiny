@@ -21,7 +21,6 @@ from .bases import Model, ParserData, field
 
 __all__ = (
     "EmbeddedSpecial",
-    "EmbeddedNone",
     "EmbeddedYouTube",
     "EmbeddedTwitch",
     "EmbeddedSpotify",
@@ -39,8 +38,10 @@ class EmbeddedSpecial(Model):
     type: str = field("type")
 
     @classmethod
-    def _from_dict(cls, raw_data: dict[str, Any]) -> EmbeddedSpecial:
+    def _from_dict(cls, raw_data: dict[str, Any]) -> Optional[EmbeddedSpecial]:
         embedded_type = raw_data["type"]
+        if embedded_type == "None":
+            return None
         embedded_cls = EMBEDDED_SPECIAL_TYPES.get(embedded_type, _EmbeddedUnknown)
         return embedded_cls(raw_data)
 
@@ -55,11 +56,6 @@ class EmbeddedSpecial(Model):
 
 @final
 class _EmbeddedUnknown(EmbeddedSpecial):
-    __slots__ = ()
-
-
-@final
-class EmbeddedNone(EmbeddedSpecial):
     __slots__ = ()
 
 
@@ -98,7 +94,6 @@ class EmbeddedBandcamp(EmbeddedSpecial):
 
 
 EMBEDDED_SPECIAL_TYPES = {
-    "None": EmbeddedNone,
     "YouTube": EmbeddedYouTube,
     "Twitch": EmbeddedTwitch,
     "Spotify": EmbeddedSpotify,
