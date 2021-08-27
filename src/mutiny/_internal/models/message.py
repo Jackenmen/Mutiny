@@ -24,7 +24,6 @@ from .embed import Embed
 
 __all__ = (
     "SystemMessage",
-    "UnknownSystemMessage",
     "TextSystemMessage",
     "UserAddedSystemMessage",
     "UserRemovedSystemMessage",
@@ -46,13 +45,13 @@ class SystemMessage(Model):
     def _from_dict(cls, raw_data: dict[str, Any]) -> SystemMessage:
         system_message_type = raw_data["type"]
         system_message_cls = SYSTEM_MESSAGE_TYPES.get(
-            system_message_type, UnknownSystemMessage
+            system_message_type, _UnknownSystemMessage
         )
         return system_message_cls(raw_data)
 
 
 @final
-class UnknownSystemMessage(SystemMessage):
+class _UnknownSystemMessage(SystemMessage):
     __slots__ = ()
 
 

@@ -68,7 +68,7 @@ class Event:
     @classmethod
     def _from_dict(cls, state: State, raw_data: dict[str, Any]) -> Event:
         event_type = raw_data["type"]
-        event_cls = EVENTS.get(event_type, UnknownEvent)
+        event_cls = EVENTS.get(event_type, _UnknownEvent)
         return event_cls(state, raw_data)
 
     async def _gateway_handle(self) -> None:
@@ -76,7 +76,7 @@ class Event:
 
 
 @final
-class UnknownEvent(Event):
+class _UnknownEvent(Event):
     __slots__ = ()
 
     def __repr__(self) -> str:

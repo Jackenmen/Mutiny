@@ -24,7 +24,6 @@ if TYPE_CHECKING:
 
 __all__ = (
     "AttachmentMetadata",
-    "UnknownMetadata",
     "FileMetadata",
     "TextMetadata",
     "AudioMetadata",
@@ -40,12 +39,12 @@ class AttachmentMetadata(Model):
     @classmethod
     def _from_dict(cls, raw_data: dict[str, Any]) -> AttachmentMetadata:
         metadata_type = raw_data["type"]
-        metadata_cls = METADATA_TYPES.get(metadata_type, UnknownMetadata)
+        metadata_cls = METADATA_TYPES.get(metadata_type, _UnknownMetadata)
         return metadata_cls(raw_data)
 
 
 @final
-class UnknownMetadata(AttachmentMetadata):
+class _UnknownMetadata(AttachmentMetadata):
     __slots__ = ()
 
 

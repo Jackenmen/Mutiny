@@ -19,7 +19,6 @@ from ._internal.models.attachment import (
     FileMetadata,
     ImageMetadata,
     TextMetadata,
-    UnknownMetadata,
     VideoMetadata,
 )
 from ._internal.models.channel import (
@@ -28,7 +27,6 @@ from ._internal.models.channel import (
     Group,
     SavedMessages,
     TextChannel,
-    UnknownChannel,
     VoiceChannel,
 )
 from ._internal.models.embed import (
@@ -39,12 +37,10 @@ from ._internal.models.embed import (
     EmbeddedSpecial,
     EmbeddedSpotify,
     EmbeddedTwitch,
-    EmbeddedUnknown,
     EmbeddedVideo,
     EmbeddedYouTube,
     ImageEmbed,
     NoneEmbed,
-    UnknownEmbed,
     WebsiteEmbed,
 )
 from ._internal.models.message import (
@@ -54,7 +50,6 @@ from ._internal.models.message import (
     Message,
     SystemMessage,
     TextSystemMessage,
-    UnknownSystemMessage,
     UserAddedSystemMessage,
     UserBannedSystemMessage,
     UserJoinedSystemMessage,
@@ -92,7 +87,6 @@ __all__ = (
     "FileMetadata",
     "ImageMetadata",
     "TextMetadata",
-    "UnknownMetadata",
     "VideoMetadata",
     # .channel
     "Channel",
@@ -100,7 +94,6 @@ __all__ = (
     "Group",
     "SavedMessages",
     "TextChannel",
-    "UnknownChannel",
     "VoiceChannel",
     # .embed
     "Embed",
@@ -110,12 +103,10 @@ __all__ = (
     "EmbeddedSpecial",
     "EmbeddedSpotify",
     "EmbeddedTwitch",
-    "EmbeddedUnknown",
     "EmbeddedVideo",
     "EmbeddedYouTube",
     "ImageEmbed",
     "NoneEmbed",
-    "UnknownEmbed",
     "WebsiteEmbed",
     # .message
     "ChannelDescriptionChangedSystemMessage",
@@ -124,7 +115,6 @@ __all__ = (
     "Message",
     "SystemMessage",
     "TextSystemMessage",
-    "UnknownSystemMessage",
     "UserAddedSystemMessage",
     "UserBannedSystemMessage",
     "UserJoinedSystemMessage",

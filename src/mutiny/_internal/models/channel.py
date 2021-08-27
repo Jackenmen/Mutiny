@@ -33,7 +33,6 @@ if TYPE_CHECKING:
 
 __all__ = (
     "Channel",
-    "UnknownChannel",
     "SavedMessages",
     "DirectMessage",
     "Group",
@@ -50,7 +49,7 @@ class Channel(StatefulResource):
     @classmethod
     def _from_dict(cls, state: State, raw_data: dict[str, Any]) -> Channel:
         channel_type = raw_data["channel_type"]
-        channel_cls = CHANNEL_TYPES.get(channel_type, UnknownChannel)
+        channel_cls = CHANNEL_TYPES.get(channel_type, _UnknownChannel)
         return channel_cls(state, raw_data)
 
     def _update_from_event(self, event: _UpdateEvent) -> None:
@@ -59,7 +58,7 @@ class Channel(StatefulResource):
 
 
 @final
-class UnknownChannel(Channel):
+class _UnknownChannel(Channel):
     __slots__ = ()
 
 

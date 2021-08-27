@@ -21,7 +21,6 @@ from .bases import Model, ParserData, field
 
 __all__ = (
     "EmbeddedSpecial",
-    "EmbeddedUnknown",
     "EmbeddedNone",
     "EmbeddedYouTube",
     "EmbeddedTwitch",
@@ -30,7 +29,6 @@ __all__ = (
     "EmbeddedImage",
     "EmbeddedVideo",
     "Embed",
-    "UnknownEmbed",
     "NoneEmbed",
     "WebsiteEmbed",
     "ImageEmbed",
@@ -43,7 +41,7 @@ class EmbeddedSpecial(Model):
     @classmethod
     def _from_dict(cls, raw_data: dict[str, Any]) -> EmbeddedSpecial:
         embedded_type = raw_data["type"]
-        embedded_cls = EMBEDDED_SPECIAL_TYPES.get(embedded_type, EmbeddedUnknown)
+        embedded_cls = EMBEDDED_SPECIAL_TYPES.get(embedded_type, _EmbeddedUnknown)
         return embedded_cls(raw_data)
 
     @classmethod
@@ -56,7 +54,7 @@ class EmbeddedSpecial(Model):
 
 
 @final
-class EmbeddedUnknown(EmbeddedSpecial):
+class _EmbeddedUnknown(EmbeddedSpecial):
     __slots__ = ()
 
 
@@ -158,12 +156,12 @@ class Embed(Model):
     @classmethod
     def _from_dict(cls, raw_data: dict[str, Any]) -> Embed:
         embed_type = raw_data["type"]
-        embed_cls = EMBED_TYPES.get(embed_type, UnknownEmbed)
+        embed_cls = EMBED_TYPES.get(embed_type, _UnknownEmbed)
         return embed_cls(raw_data)
 
 
 @final
-class UnknownEmbed(Embed):
+class _UnknownEmbed(Embed):
     __slots__ = ()
 
 
