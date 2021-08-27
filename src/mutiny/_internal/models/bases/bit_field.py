@@ -14,19 +14,61 @@
 
 from __future__ import annotations
 
-from typing import Optional, Union, final, overload
+from typing import Any, ClassVar, Optional, Union, final, overload
 
 __all__ = ("BitField", "bit")
 
 
 class BitField:
-    __slots__ = ("value",)
+    """Base class for all bit field classes."""
 
-    def __init__(self, value: int) -> None:
+    __slots__ = ("value",)
+    #: The mapping of the bit name to the bit value.
+    BITS: ClassVar[dict[str, int]]
+    #: The raw bit field value.
+    value: int
+
+    def __init__(self, value: int = 0, **kwargs: bool) -> None:
         self.value = value
+        for bit_name, bit_value in kwargs.items():
+            if bit_name not in self.BITS:
+                raise TypeError(
+                    f"{bit_name!r} is not a valid bit for {self.__class__.__name__}."
+                )
+            setattr(self, bit_name, bit_value)
+
+    def __init_subclass__(cls) -> None:
+        cls.BITS = {
+            attr_name: attr_value.bit_value
+            for base in reversed(cls.__mro__)
+            for attr_name, attr_value in base.__dict__.items()
+            if isinstance(attr_value, bit)
+        }
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} value={self.value}>"
+
+    def __eq__(self, other: Any) -> bool:
+        """
+        Compare the bit fields for equality.
+
+        Parameters:
+            other:
+                The other bit field. This bit field needs to be of the same type to
+                compare equal.
+        """
+        return isinstance(other, self.__class__) and self.value == other.value
+
+    def __ne__(self, other: Any) -> bool:
+        """
+        Compare the bit fields for inequality.
+
+        Parameters:
+            other:
+                The other bit field. This bit field will also be considered unequal
+                if it is not of the same type.
+        """
+        return not self.__eq__(other)
 
 
 @final
@@ -58,3 +100,11 @@ class bit:
             return self
 
         return (instance.value & self.bit_value) == self.bit_value
+
+    def __set__(self, instance: BitField, value: bool) -> None:
+        if value is True:
+            instance.value |= self.bit_value
+        elif value is False:
+            instance.value &= ~self.bit_value
+        else:
+            raise TypeError("A bit can only be set to a bool.")
