@@ -46,7 +46,8 @@ class SystemMessageChannels(StatefulModel):
 
 
 @final
-class Role(StatefulModel):
+class Role(StatefulResource):
+    id: str = field("id")
     name: str = field("name")
     server_permissions: ServerPermissions = field(keys=("permissions", 0), factory=True)
     channel_permissions: ChannelPermissions = field(
@@ -125,10 +126,11 @@ class Server(StatefulResource):
         return SystemMessageChannels(self._state, parser_data.get_field())
 
     def _roles_parser(self, parser_data: ParserData) -> dict[str, Any]:
-        return {
-            role_id: Role(self._state, role_data)
-            for role_id, role_data in parser_data.get_field().items()
-        }
+        roles = {}
+        for role_id, role_data in parser_data.get_field().items():
+            role_data["id"] = role_id
+            roles[role_id] = Role(self._state, role_data)
+        return roles
 
     def _default_server_permissions_parser(
         self, parser_data: ParserData
