@@ -68,7 +68,7 @@ class EventHandler:
                 )
 
             for param in it:
-                if param.default is not inspect.Parameter.empty:
+                if param.default is inspect.Parameter.empty:
                     raise TypeError("Function has more than one required argument.")
 
         assert event_cls is not None
