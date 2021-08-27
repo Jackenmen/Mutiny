@@ -72,9 +72,9 @@ class Role(StatefulResource):
 
 
 @final
-class Member(StatefulModel):
+class Member(StatefulResource):
+    id: str = field(keys=("_id", "user"))
     server_id: str = field(keys=("_id", "server"))
-    user_id: str = field(keys=("_id", "user"))
     nickname: Optional[str] = field("nickname", default=None)
     avatar: Optional[Attachment] = field("avatar", factory=True, default=None)
     role_ids: list[str] = field("roles", default_factory=list)

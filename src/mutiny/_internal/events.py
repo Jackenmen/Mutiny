@@ -130,7 +130,7 @@ class ReadyEvent(Event):
 
         for raw_data in self.raw_data["members"]:
             member = Member(state, raw_data)
-            servers[member.server_id]._members[member.user_id] = member
+            servers[member.server_id]._members[member.id] = member
 
 
 @final
