@@ -421,7 +421,7 @@ class ServerRoleDeleteEvent(Event):
 
 @final
 class UserUpdateEvent(Event):
-    __slots__ = ("user_id", "user", "data", "clear")
+    __slots__ = ("user_id", "data", "clear")
 
     def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
         super().__init__(state, raw_data)
