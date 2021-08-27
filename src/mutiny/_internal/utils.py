@@ -26,11 +26,12 @@ _DateTimeData = TypedDict("_DateTimeData", {"$date": str})
 
 
 class cached_slot_property(Generic[_T, _S]):
-    __slots__ = ("attr_name", "func")
+    __slots__ = ("attr_name", "func", "__doc__")
 
     def __init__(self, func: Callable[[_T], _S]) -> None:
         self.attr_name = f"_cs_{func.__name__}"
         self.func = func
+        self.__doc__ = getattr(func, "__doc__")
 
     @overload
     def __get__(self, instance: None, owner: type[_T]) -> cached_slot_property[_T, _S]:
