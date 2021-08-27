@@ -29,7 +29,6 @@ __all__ = (
     "Event",
     "ErrorEvent",
     "AuthenticatedEvent",
-    "PongEvent",
     "ReadyEvent",
     "MessageEvent",
     "MessageUpdateEvent",
@@ -97,15 +96,6 @@ class ErrorEvent(Event):
 @final
 class AuthenticatedEvent(Event):
     __slots__ = ()
-
-
-@final
-class PongEvent(Event):
-    __slots__ = ("_cs_time",)
-
-    @cached_slot_property
-    def time(self) -> int:
-        return self.raw_data["time"]
 
 
 @final
@@ -468,7 +458,6 @@ class UserRelationshipEvent(Event):
 EVENTS = {
     "Error": ErrorEvent,
     "Authenticated": AuthenticatedEvent,
-    "Pong": PongEvent,
     "Ready": ReadyEvent,
     "Message": MessageEvent,
     "MessageUpdate": MessageUpdateEvent,
