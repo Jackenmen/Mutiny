@@ -360,8 +360,9 @@ class ServerMemberJoinEvent(Event):
 
 @final
 class ServerMemberLeaveEvent(Event):
-    __slots__ = ("server_id", "server", "user_id")
+    __slots__ = ("server_id", "server", "user_id", "member")
     server: Server
+    member: Optional[Member]
 
     def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
         super().__init__(state, raw_data)
@@ -370,7 +371,7 @@ class ServerMemberLeaveEvent(Event):
 
     async def _gateway_handle(self) -> None:
         self.server = self._state.servers[self.server_id]
-        self.server._members.pop(self.user_id, None)
+        self.member = self.server._members.pop(self.user_id, None)
         if self.user_id == self._state.user.id:
             del self._state.servers[self.server_id]
 
