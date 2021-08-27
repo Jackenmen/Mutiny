@@ -109,10 +109,11 @@ class ErrorEvent(Event):
     """
 
     __slots__ = ("error",)
+    error: str
 
     def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
         super().__init__(state, raw_data)
-        self.error: str = raw_data["error"]
+        self.error = raw_data["error"]
 
 
 @final
@@ -232,12 +233,14 @@ class ChannelCreateEvent(Event):
     """
 
     __slots__ = ("channel_id", "channel", "server_id")
+    channel_id: str
     channel: Channel
+    server_id: Optional[str]
 
     def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
         super().__init__(state, raw_data)
-        self.channel_id: str = raw_data["_id"]
-        self.server_id: Optional[str] = raw_data.get("server")
+        self.channel_id = raw_data["_id"]
+        self.server_id = raw_data.get("server")
 
     async def _gateway_handle(self) -> None:
         self.channel = Channel._from_dict(self._state, self.raw_data)
@@ -265,13 +268,16 @@ class ChannelUpdateEvent(Event):
     """
 
     __slots__ = ("channel_id", "channel", "data", "clear")
+    channel_id: str
     channel: Channel
+    data: dict[str, Any]
+    clear: Optional[str]
 
     def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
         super().__init__(state, raw_data)
-        self.channel_id: str = raw_data["id"]
-        self.data: dict[str, Any] = raw_data["data"]
-        self.clear: Optional[str] = raw_data.get("clear")
+        self.channel_id = raw_data["id"]
+        self.data = raw_data["data"]
+        self.clear = raw_data.get("clear")
 
     async def _gateway_handle(self) -> None:
         self.channel = self._state.channels[self.channel_id]
@@ -291,11 +297,12 @@ class ChannelDeleteEvent(Event):
     """
 
     __slots__ = ("channel_id", "channel")
+    channel_id: str
     channel: Optional[Channel]
 
     def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
         super().__init__(state, raw_data)
-        self.channel_id: str = raw_data["id"]
+        self.channel_id = raw_data["id"]
 
     async def _gateway_handle(self) -> None:
         self.channel = self._state.channels.pop(self.channel_id, None)
@@ -318,12 +325,14 @@ class ChannelGroupJoinEvent(Event):
     """
 
     __slots__ = ("channel_id", "channel", "user_id")
+    channel_id: str
     channel: Channel
+    user_id: str
 
     def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
         super().__init__(state, raw_data)
-        self.channel_id: str = raw_data["id"]
-        self.user_id: str = raw_data["user"]
+        self.channel_id = raw_data["id"]
+        self.user_id = raw_data["user"]
 
     async def _gateway_handle(self) -> None:
         # TODO(REST): fetch channel first if we are the ones that joined
@@ -345,12 +354,14 @@ class ChannelGroupLeaveEvent(Event):
     """
 
     __slots__ = ("channel_id", "channel", "user_id")
+    channel_id: str
     channel: Channel
+    user_id: str
 
     def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
         super().__init__(state, raw_data)
-        self.channel_id: str = raw_data["id"]
-        self.user_id: str = raw_data["user"]
+        self.channel_id = raw_data["id"]
+        self.user_id = raw_data["user"]
 
     async def _gateway_handle(self) -> None:
         self.channel = self._state.channels[self.channel_id]
@@ -457,13 +468,16 @@ class ServerUpdateEvent(Event):
     """
 
     __slots__ = ("server_id", "server", "data", "clear")
+    server_id: str
     server: Server
+    data: dict[str, Any]
+    clear: Optional[str]
 
     def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
         super().__init__(state, raw_data)
-        self.server_id: str = raw_data["id"]
-        self.data: dict[str, Any] = raw_data["data"]
-        self.clear: Optional[str] = raw_data.get("clear")
+        self.server_id = raw_data["id"]
+        self.data = raw_data["data"]
+        self.clear = raw_data.get("clear")
 
     async def _gateway_handle(self) -> None:
         self.server = self._state.servers[self.server_id]
@@ -483,11 +497,12 @@ class ServerDeleteEvent(Event):
     """
 
     __slots__ = ("server_id", "server")
+    server_id: str
     server: Server
 
     def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
         super().__init__(state, raw_data)
-        self.server_id: str = raw_data["id"]
+        self.server_id = raw_data["id"]
 
     async def _gateway_handle(self) -> None:
         self.server = self._state.servers.pop(self.server_id)
@@ -513,14 +528,18 @@ class ServerMemberUpdateEvent(Event):
     """
 
     __slots__ = ("server_id", "server", "user_id", "data", "clear")
+    server_id: str
     server: Server
+    user_id: str
+    data: dict[str, Any]
+    clear: Optional[str]
 
     def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
         super().__init__(state, raw_data)
-        self.server_id: str = raw_data["id"]["server"]
-        self.user_id: str = raw_data["id"]["user"]
-        self.data: dict[str, Any] = raw_data["data"]
-        self.clear: Optional[str] = raw_data.get("clear")
+        self.server_id = raw_data["id"]["server"]
+        self.user_id = raw_data["id"]["user"]
+        self.data = raw_data["data"]
+        self.clear = raw_data.get("clear")
 
     async def _gateway_handle(self) -> None:
         self.server = self._state.servers[self.server_id]
@@ -544,13 +563,15 @@ class ServerMemberJoinEvent(Event):
     """
 
     __slots__ = ("server_id", "server", "user_id", "member")
+    server_id: str
     server: Server
+    user_id: str
     member: Member
 
     def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
         super().__init__(state, raw_data)
-        self.server_id: str = raw_data["id"]
-        self.user_id: str = raw_data["user"]
+        self.server_id = raw_data["id"]
+        self.user_id = raw_data["user"]
 
     async def _gateway_handle(self) -> None:
         # TODO(REST): fetch server first if we are the ones that joined
@@ -576,13 +597,15 @@ class ServerMemberLeaveEvent(Event):
     """
 
     __slots__ = ("server_id", "server", "user_id", "member")
+    server_id: str
     server: Server
+    user_id: str
     member: Optional[Member]
 
     def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
         super().__init__(state, raw_data)
-        self.server_id: str = raw_data["id"]
-        self.user_id: str = raw_data["user"]
+        self.server_id = raw_data["id"]
+        self.user_id = raw_data["user"]
 
     async def _gateway_handle(self) -> None:
         self.server = self._state.servers[self.server_id]
@@ -613,16 +636,20 @@ class ServerRoleUpdateEvent(Event):
     """
 
     __slots__ = ("server_id", "server", "role_id", "role", "data", "clear", "new")
+    server_id: str
     server: Server
+    role_id: str
     role: Role
+    data: dict[str, Any]
+    clear: Optional[str]
     new: bool
 
     def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
         super().__init__(state, raw_data)
-        self.server_id: str = raw_data["id"]
-        self.role_id: str = raw_data["role_id"]
-        self.data: dict[str, Any] = raw_data["data"]
-        self.clear: Optional[str] = raw_data.get("clear")
+        self.server_id = raw_data["id"]
+        self.role_id = raw_data["role_id"]
+        self.data = raw_data["data"]
+        self.clear = raw_data.get("clear")
 
     async def _gateway_handle(self) -> None:
         self.server = self._state.servers[self.server_id]
@@ -652,13 +679,15 @@ class ServerRoleDeleteEvent(Event):
     """
 
     __slots__ = ("server_id", "server", "role_id", "role")
+    server_id: str
     server: Server
+    role_id: str
     role: Role
 
     def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
         super().__init__(state, raw_data)
-        self.server_id: str = raw_data["id"]
-        self.role_id: str = raw_data["role_id"]
+        self.server_id = raw_data["id"]
+        self.role_id = raw_data["role_id"]
 
     async def _gateway_handle(self) -> None:
         self.server = self._state.servers[self.server_id]
@@ -683,12 +712,15 @@ class UserUpdateEvent(Event):
     """
 
     __slots__ = ("user_id", "data", "clear")
+    user_id: str
+    data: dict[str, Any]
+    clear: Optional[str]
 
     def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
         super().__init__(state, raw_data)
-        self.user_id: str = raw_data["id"]
-        self.data: dict[str, Any] = raw_data["data"]
-        self.clear: Optional[str] = raw_data.get("clear")
+        self.user_id = raw_data["id"]
+        self.data = raw_data["data"]
+        self.clear = raw_data.get("clear")
 
     async def _gateway_handle(self) -> None:
         user = self._state.users.get(self.user_id)
@@ -711,11 +743,14 @@ class UserRelationshipEvent(Event):
     """
 
     __slots__ = ("self_id", "user_id", "status")
+    self_id: str
+    user_id: str
+    status: RelationshipStatus
 
     def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
         super().__init__(state, raw_data)
-        self.self_id: str = raw_data["id"]
-        self.user_id: str = raw_data["user"]["_id"]
+        self.self_id = raw_data["id"]
+        self.user_id = raw_data["user"]["_id"]
         self.status = RelationshipStatus(raw_data["status"])
 
     async def _gateway_handle(self) -> None:
