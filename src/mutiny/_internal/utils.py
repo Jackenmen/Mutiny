@@ -33,6 +33,15 @@ class cached_slot_property(Generic[_T, _S]):
         self.func = func
         self.__doc__ = getattr(func, "__doc__")
 
+    def __set_name__(self, owner: type[_T], name: str) -> None:
+        try:
+            return_type = getattr(self.func, "__annotations__", {})["return"]
+        except KeyError:
+            return
+        if not hasattr(owner, "__annotations__"):
+            owner.__annotations__ = {}
+        owner.__annotations__[name] = return_type
+
     @overload
     def __get__(self, instance: None, owner: type[_T]) -> cached_slot_property[_T, _S]:
         ...
