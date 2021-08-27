@@ -39,25 +39,23 @@ class EventHandler:
     def add_listener(
         self, listener: EventListener, *, event_cls: Optional[type[Event]] = None
     ) -> None:
+        signature = inspect.signature(listener)
+        it = iter(signature.parameters.values())
+        try:
+            param = next(it)
+        except StopIteration:
+            raise TypeError("Function does not have one required positional argument.")
+        if param.kind not in (
+            inspect.Parameter.POSITIONAL_ONLY,
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.VAR_POSITIONAL,
+        ):
+            raise TypeError("Function does not have one required positional argument.")
+        for param in it:
+            if param.default is inspect.Parameter.empty:
+                raise TypeError("Function has more than one required argument.")
+
         if event_cls is None:
-            signature = inspect.signature(listener)
-            it = iter(signature.parameters.values())
-            try:
-                param = next(it)
-            except StopIteration:
-                raise TypeError(
-                    "Function does not have one required positional argument."
-                )
-
-            if param.kind not in (
-                inspect.Parameter.POSITIONAL_ONLY,
-                inspect.Parameter.POSITIONAL_OR_KEYWORD,
-                inspect.Parameter.VAR_POSITIONAL,
-            ):
-                raise TypeError(
-                    "Function does not have one required positional argument."
-                )
-
             type_hints = get_type_hints(listener)
             try:
                 event_cls = type_hints[param.name]
@@ -66,10 +64,6 @@ class EventHandler:
                     "Function does not have a type hint on its first"
                     " positional argument."
                 )
-
-            for param in it:
-                if param.default is inspect.Parameter.empty:
-                    raise TypeError("Function has more than one required argument.")
 
         assert event_cls is not None
         if not issubclass(event_cls, Event):
