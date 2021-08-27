@@ -30,7 +30,6 @@ __all__ = (
     "ParserData",
     "field",
     "Model",
-    "ResourceMixin",
     "StatefulModel",
     "StatefulResource",
 )
@@ -266,17 +265,6 @@ class Model(metaclass=_ModelMeta):
                 pass
 
 
-class ResourceMixin:
-    # needs to be mixin with empty slots to avoid multiple bases
-    # with slots in StatefulResource
-    __slots__ = ()
-    id: str
-
-    @cached_slot_property
-    def created_at(self) -> datetime.datetime:
-        return ulid.from_str(self.id).timestamp().datetime
-
-
 class StatefulModel(Model):
     __slots__ = ("_state",)
 
@@ -285,5 +273,10 @@ class StatefulModel(Model):
         super().__init__(raw_data)
 
 
-class StatefulResource(StatefulModel, ResourceMixin):
+class StatefulResource(StatefulModel):
     __slots__ = ("id", "_cs_created_at")
+    id: str
+
+    @cached_slot_property
+    def created_at(self) -> datetime.datetime:
+        return ulid.from_str(self.id).timestamp().datetime
