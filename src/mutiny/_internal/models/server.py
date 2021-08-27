@@ -16,9 +16,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Optional, final
 
+from ..bit_fields import ChannelPermissions, ServerPermissions
 from .attachment import Attachment
 from .bases import ParserData, StatefulModel, StatefulResource, field
-from .permissions import ChannelPermissions, ServerPermissions
 
 if TYPE_CHECKING:
     from ...events import (

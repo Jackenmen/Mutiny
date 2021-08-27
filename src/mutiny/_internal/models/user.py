@@ -16,48 +16,22 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Optional, final
 
+from ..bit_fields import Badges, UserFlags
 from ..enums import Presence, RelationshipStatus
 from .attachment import Attachment
-from .bases import (
-    BitField,
-    Model,
-    ParserData,
-    StatefulModel,
-    StatefulResource,
-    bit,
-    field,
-)
+from .bases import Model, ParserData, StatefulModel, StatefulResource, field
 
 if TYPE_CHECKING:
     from ...events import UserUpdateEvent
     from ..state import State
 
 __all__ = (
-    "Badges",
-    "UserFlags",
     "Status",
     "Relationship",
     "BotInfo",
     "UserProfile",
     "User",
 )
-
-
-@final
-class Badges(BitField):
-    developer = bit(1)
-    translator = bit(2)
-    supporter = bit(4)
-    responsible_disclosure = bit(8)
-    revolt_team = bit(16)
-    early_adopter = bit(256)
-
-
-@final
-class UserFlags(BitField):
-    suspended = bit(1)
-    deleted = bit(2)
-    banned = bit(4)
 
 
 @final

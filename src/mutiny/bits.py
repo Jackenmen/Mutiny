@@ -12,17 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Async ready API wrapper for Revolt API written in Python."""
-
-__version__ = "0.3.1a0"
-
-from . import bits, enums, events, models
-from ._internal.client import Client
+from ._internal.bit_fields import (
+    Badges,
+    ChannelPermissions,
+    ServerPermissions,
+    UserFlags,
+)
 
 __all__ = (
-    "bits",
-    "enums",
-    "events",
-    "models",
-    "Client",
+    "ChannelPermissions",
+    "ServerPermissions",
+    "Badges",
+    "UserFlags",
 )

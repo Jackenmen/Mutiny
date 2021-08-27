@@ -56,7 +56,6 @@ from ._internal.models.message import (
     UserLeftSystemMessage,
     UserRemovedSystemMessage,
 )
-from ._internal.models.permissions import ChannelPermissions, ServerPermissions
 from ._internal.models.server import (
     Category,
     Member,
@@ -64,15 +63,7 @@ from ._internal.models.server import (
     Server,
     SystemMessageChannels,
 )
-from ._internal.models.user import (
-    Badges,
-    BotInfo,
-    Relationship,
-    Status,
-    User,
-    UserFlags,
-    UserProfile,
-)
+from ._internal.models.user import BotInfo, Relationship, Status, User, UserProfile
 
 __all__ = (
     # .attachment
@@ -115,9 +106,6 @@ __all__ = (
     "UserKickedSystemMessage",
     "UserLeftSystemMessage",
     "UserRemovedSystemMessage",
-    # .permissions
-    "ChannelPermissions",
-    "ServerPermissions",
     # .server
     "Category",
     "Member",
@@ -125,11 +113,9 @@ __all__ = (
     "Server",
     "SystemMessageChannels",
     # .user
-    "Badges",
     "BotInfo",
     "Relationship",
     "Status",
     "User",
-    "UserFlags",
     "UserProfile",
 )
