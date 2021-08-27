@@ -57,11 +57,7 @@ from ._internal.models.message import (
     UserLeftSystemMessage,
     UserRemovedSystemMessage,
 )
-from ._internal.models.permissions import (
-    ChannelPermissions,
-    ServerPermissions,
-    UserPermissions,
-)
+from ._internal.models.permissions import ChannelPermissions, ServerPermissions
 from ._internal.models.server import (
     Category,
     Member,
@@ -124,7 +120,6 @@ __all__ = (
     # .permissions
     "ChannelPermissions",
     "ServerPermissions",
-    "UserPermissions",
     # .server
     "Category",
     "Member",

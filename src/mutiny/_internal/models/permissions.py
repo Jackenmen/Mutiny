@@ -16,15 +16,7 @@ from typing import final
 
 from .bases import BitField, bit
 
-__all__ = ("UserPermissions", "ChannelPermissions", "ServerPermissions")
-
-
-@final
-class UserPermissions(BitField):
-    access = bit(1)
-    view_profile = bit(2)
-    send_message = bit(4)
-    invite = bit(8)
+__all__ = ("ChannelPermissions", "ServerPermissions")
 
 
 @final
