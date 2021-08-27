@@ -126,6 +126,7 @@ class _EmbeddedImageMixin(Model):
         return cls(raw_data)
 
 
+@final
 class EmbeddedImage(_EmbeddedImageMixin):
     __slots__ = ("url", "width", "height", "size")
 
