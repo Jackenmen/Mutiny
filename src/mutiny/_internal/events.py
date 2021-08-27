@@ -378,9 +378,10 @@ class ServerMemberLeaveEvent(Event):
 
 @final
 class ServerRoleUpdateEvent(Event):
-    __slots__ = ("server_id", "server", "role_id", "role", "data", "clear")
+    __slots__ = ("server_id", "server", "role_id", "role", "data", "clear", "new")
     server: Server
     role: Role
+    new: bool
 
     def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
         super().__init__(state, raw_data)
@@ -394,8 +395,10 @@ class ServerRoleUpdateEvent(Event):
         try:
             role = self.server.roles[self.role_id]
         except KeyError:
+            self.new = True
             role = self.server.roles[self.role_id] = Role(self._state, self.data)
         else:
+            self.new = False
             role._update_from_event(self)
         self.role = role
 
