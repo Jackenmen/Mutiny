@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Attachment models"""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Optional, final
@@ -34,6 +36,21 @@ __all__ = (
 
 
 class AttachmentMetadata(Model):
+    """
+    AttachmentMetadata()
+
+    Base class for all attachment metadata classes.
+
+    Attributes:
+        type:
+            The type of the attachment.
+
+            .. note::
+
+                Checking using ``type()`` or :func:`isinstance()` should be
+                preferred over using this attribute.
+    """
+
     type: str = field("type")
 
     @classmethod
@@ -50,27 +67,65 @@ class _UnknownMetadata(AttachmentMetadata):
 
 @final
 class FileMetadata(AttachmentMetadata):
+    """
+    FileMetadata()
+
+    Represents the attachment metadata of a file.
+    """
+
     __slots__ = ()
 
 
 @final
 class TextMetadata(AttachmentMetadata):
+    """
+    TextMetadata()
+
+    Represents the attachment metadata of a text file.
+    """
+
     __slots__ = ()
 
 
 @final
 class AudioMetadata(AttachmentMetadata):
+    """
+    AudioMetadata()
+
+    Represents the attachment metadata of an audio file.
+    """
+
     __slots__ = ()
 
 
 @final
 class ImageMetadata(AttachmentMetadata):
+    """
+    ImageMetadata()
+
+    Represents the attachment metadata of a image file.
+
+    Attributes:
+        width: The image width.
+        height: The image height.
+    """
+
     width: int = field("width")
     height: int = field("height")
 
 
 @final
 class VideoMetadata(AttachmentMetadata):
+    """
+    VideoMetadata()
+
+    Represents the attachment metadata of a video file.
+
+    Attributes:
+        width: The video width.
+        height: The video height.
+    """
+
     width: int = field("width")
     height: int = field("height")
 
@@ -86,6 +141,20 @@ METADATA_TYPES = {
 
 @final
 class Attachment(StatefulResource):
+    """
+    Attachment()
+
+    Represents an attachment.
+
+    Attributes:
+        id: The attachment ID.
+        tag: The attachment tag.
+        size: The file size (in bytes).
+        filename: The file name.
+        metadata: The attachment metadata.
+        content_type: The file's content type.
+    """
+
     id: str = field("_id")
     tag: AttachmentTag = field("tag", factory=True)
     size: int = field("size")

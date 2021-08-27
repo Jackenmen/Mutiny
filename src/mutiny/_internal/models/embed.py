@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Message embeds models"""
+
 from __future__ import annotations
 
 from typing import Any, Optional, TypeVar, final
@@ -35,6 +37,21 @@ __all__ = (
 
 
 class EmbeddedSpecial(Model):
+    """
+    EmbeddedSpecial()
+
+    Base class for all embed special classes.
+
+    Attributes:
+        type:
+            The type of the embed special.
+
+            .. note::
+
+                Checking using ``type()`` or :func:`isinstance()` should be
+                preferred over using this attribute.
+    """
+
     type: str = field("type")
 
     @classmethod
@@ -61,11 +78,30 @@ class _EmbeddedUnknown(EmbeddedSpecial):
 
 @final
 class EmbeddedYouTube(EmbeddedSpecial):
+    """
+    EmbeddedYouTube()
+
+    Represents a special YouTube embed.
+
+    Attributes:
+        id: The ID of the resource this embed points to.
+    """
+
     id: str = field("id")
 
 
 @final
 class EmbeddedTwitch(EmbeddedSpecial):
+    """
+    EmbeddedTwitch()
+
+    Represents a special Twitch embed.
+
+    Attributes:
+        id: The ID of the resource this embed points to.
+        content_type: The type of the resource this embed points to.
+    """
+
     id: str = field("id")
     content_type: TwitchType = field("content_type", factory=True)
 
@@ -75,17 +111,43 @@ class EmbeddedTwitch(EmbeddedSpecial):
 
 @final
 class EmbeddedSpotify(EmbeddedSpecial):
+    """
+    EmbeddedSpotify()
+
+    Represents a special Spotify embed.
+
+    Attributes:
+        id: The ID of the resource this embed points to.
+        content_type: The type of the resource this embed points to.
+    """
+
     id: str = field("id")
     content_type: str = field("content_type")
 
 
 @final
 class EmbeddedSoundcloud(EmbeddedSpecial):
+    """
+    EmbeddedSoundcloud()
+
+    Represents a special Soundcloud embed.
+    """
+
     __slots__ = ()
 
 
 @final
 class EmbeddedBandcamp(EmbeddedSpecial):
+    """
+    EmbeddedBandcamp()
+
+    Represents a special Bandcamp embed.
+
+    Attributes:
+        id: The ID of the resource this embed points to.
+        content_type: The type of the resource this embed points to.
+    """
+
     id: str = field("id")
     content_type: BandcampType = field("content_type", factory=True)
 
@@ -128,11 +190,34 @@ class _EmbeddedImageMixin(Model):
 
 @final
 class EmbeddedImage(_EmbeddedImageMixin):
+    """
+    EmbeddedImage()
+
+    Represents a website embed image.
+
+    Attributes:
+        url: The image's URL.
+        width: The image's width.
+        height: The image's height.
+        size: The image's size (in bytes).
+    """
+
     __slots__ = ("url", "width", "height", "size")
 
 
 @final
 class EmbeddedVideo(Model):
+    """
+    EmbeddedVideo()
+
+    Represents a website embed video.
+
+    Attributes:
+        url: The video's URL.
+        width: The video's width.
+        height: The video's height.
+    """
+
     url: str = field("url")
     width: int = field("width")
     height: int = field("height")
@@ -147,6 +232,21 @@ class EmbeddedVideo(Model):
 
 
 class Embed(Model):
+    """
+    Embed()
+
+    Base class for all embeds.
+
+    Attributes:
+        type:
+            The type of the embed.
+
+            .. note::
+
+                Checking using ``type()`` or :func:`isinstance()` should be
+                preferred over using this attribute.
+    """
+
     type: str = field("type")
 
     @classmethod
@@ -163,11 +263,35 @@ class _UnknownEmbed(Embed):
 
 @final
 class NoneEmbed(Embed):
+    """
+    NoneEmbed()
+
+    Represents a none embed which is an embed indicating
+    that there is no embed for the first URL in the message content.
+    """
+
     __slots__ = ()
 
 
 @final
 class WebsiteEmbed(Embed):
+    """
+    WebsiteEmbed()
+
+    Represents a website embed.
+
+    Attributes:
+        url: The website URL if provided.
+        special: Special information about this website if provided.
+        title: The website title if provided.
+        description: The website description if provided.
+        image: The website's embedded image if provided.
+        video: The website's embedded video if provided.
+        site_name: The website's site name if provided.
+        icon_url: The website's icon URL if provided.
+        colour: The website's embed colour if provided.
+    """
+
     url: Optional[str] = field("url", default=None)
     special: Optional[EmbeddedSpecial] = field("special", factory=True, default=None)
     title: Optional[str] = field("title", default=None)
@@ -191,6 +315,18 @@ class WebsiteEmbed(Embed):
 
 @final
 class ImageEmbed(_EmbeddedImageMixin, Embed):
+    """
+    ImageEmbed()
+
+    Represents an image embed.
+
+    Attributes:
+        url: The image's URL.
+        width: The image's width.
+        height: The image's height.
+        size: The image's size (in bytes).
+    """
+
     __slots__ = ()
 
 

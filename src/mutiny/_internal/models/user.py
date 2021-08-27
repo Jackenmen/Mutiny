@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""User models"""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Optional, final
@@ -36,6 +38,16 @@ __all__ = (
 
 @final
 class Status(Model):
+    """
+    Status()
+
+    Represents a user's status.
+
+    Attributes:
+        text: The custom status text.
+        presence: The user's presence.
+    """
+
     text: Optional[str] = field("text", default=None)
     # Users who have never changed their presence do not have the `presence`.
     # New users start with an Online presence,
@@ -48,6 +60,16 @@ class Status(Model):
 
 @final
 class Relationship(StatefulModel):
+    """
+    Relationship()
+
+    Represents the client user's relationship with other user.
+
+    Attributes:
+        user_id: The ID of the other user in this relation.
+        status: The relationship's status.
+    """
+
     user_id: str = field("_id")
     status: RelationshipStatus = field("status", factory=True)
 
@@ -57,6 +79,15 @@ class Relationship(StatefulModel):
 
 @final
 class BotInfo(StatefulModel):
+    """
+    BotInfo()
+
+    Represents the information about a bot user.
+
+    Attributes:
+        owner_id: The ID of the bot owner.
+    """
+
     owner_id: str = field("owner")
 
     @classmethod
@@ -70,6 +101,16 @@ class BotInfo(StatefulModel):
 
 @final
 class UserProfile(StatefulModel):
+    """
+    UserProfile()
+
+    Represents a profile of a user.
+
+    Attributes:
+        content: The profile content if provided.
+        background: The profile background if provided.
+    """
+
     content: Optional[str] = field("content", default=None)
     background: Optional[Attachment] = field("background", factory=True, default=None)
 
@@ -87,6 +128,25 @@ class UserProfile(StatefulModel):
 
 @final
 class User(StatefulResource):
+    """
+    User()
+
+    Represents a user.
+
+    Attributes:
+        id: The user ID.
+        username: The username.
+        avatar: The user's avatar.
+        relations: The user's relations. This is only present for the client user.
+        badges: The user's badges.
+        status: The user's status.
+        relationship_status: The client user's relationship status with this user.
+        online: Indicates whether the user is online.
+        flags: The user flags.
+        bot: The information about this bot, or `None` if this user is not a bot.
+        profile: The user's profile.
+    """
+
     id: str = field("_id")
     username: str = field("username")
     avatar: Optional[Attachment] = field("avatar", factory=True, default=None)

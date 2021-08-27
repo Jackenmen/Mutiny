@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Server models"""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Optional, final
@@ -32,6 +34,17 @@ __all__ = ("Category", "SystemMessageChannels", "Role", "Member", "Server")
 
 @final
 class Category(StatefulResource):
+    """
+    Category()
+
+    Represents a server channel category.
+
+    Attributes:
+        id: The category ID.
+        title: The category title.
+        channel_ids: List of the channel IDs belonging to this category.
+    """
+
     id: str = field("id")
     title: str = field("title")
     channel_ids: list[str] = field("channels")
@@ -39,6 +52,18 @@ class Category(StatefulResource):
 
 @final
 class SystemMessageChannels(StatefulModel):
+    """
+    SystemMessageChannels()
+
+    Represents a server's system message channels configuration.
+
+    Attributes:
+        user_joined_id: The ID of the channel used for "user joined" messages, if any.
+        user_left_id: The ID of the channel used for "user left" messages, if any.
+        user_kicked_id: The ID of the channel used for "user kicked" messages, if any.
+        user_banned_id: The ID of the channel used for "user banned" messages, if any.
+    """
+
     user_joined_id: Optional[str] = field("user_joined", default=None)
     user_left_id: Optional[str] = field("user_left", default=None)
     user_kicked_id: Optional[str] = field("user_kicked", default=None)
@@ -47,6 +72,23 @@ class SystemMessageChannels(StatefulModel):
 
 @final
 class Role(StatefulResource):
+    """
+    Role()
+
+    Represents a role in a server.
+
+    Attributes:
+        id: The ID of the role.
+        name: The name of the role.
+        server_permissions: The role's server permissions.
+        channel_permissions: The role's channel permissions.
+        colour: The role's colour.
+        hoist: Indicates if the role will be displayed separately on the members list.
+        rank:
+            The role's ranking. A role with a smaller number will have permissions over
+            the roles with larger numbers.
+    """
+
     id: str = field("id")
     name: str = field("name")
     server_permissions: ServerPermissions = field(keys=("permissions", 0), factory=True)
@@ -73,6 +115,19 @@ class Role(StatefulResource):
 
 @final
 class Member(StatefulResource):
+    """
+    Member()
+
+    Represents a member in a server.
+
+    Attributes:
+        id: The member ID (equivalent to user ID).
+        server_id: The ID of the member's server.
+        nickname: The member's server nickname.
+        avatar: The member's server avatar.
+        role_ids: List of the role IDs the member has.
+    """
+
     id: str = field(keys=("_id", "user"))
     server_id: str = field(keys=("_id", "server"))
     nickname: Optional[str] = field("nickname", default=None)
@@ -92,6 +147,27 @@ class Member(StatefulResource):
 
 @final
 class Server(StatefulResource):
+    """
+    Server()
+
+    Represents a server.
+
+    Attributes:
+        id: The server ID.
+        nonce: Nonce value, used to prevent double requests to create objects.
+        owner_id: The user ID of the server's owner.
+        name: The name of the server.
+        description: The description of the server if provided.
+        channel_ids: List of the channel IDs in the server.
+        categories: Mapping of the category ID to category in the server.
+        system_message_channels: The server's system message channels configuration.
+        roles: Mapping of the role ID to role in the server.
+        default_server_permissions: The default server permissions.
+        default_channel_permissions: The default channel permissions in the server.
+        icon: The server's icon if provided.
+        banner: The server's banner if provided.
+    """
+
     id: str = field("_id")
     nonce: Optional[str] = field("nonce", default=None)
     owner_id: str = field("owner")

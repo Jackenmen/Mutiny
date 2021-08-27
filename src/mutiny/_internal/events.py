@@ -54,11 +54,24 @@ __all__ = (
 
 
 class Event:
+    """
+    Event()
+
+    Base class for all event classes.
+    """
+
     __slots__ = ("_state", "raw_data", "type")
 
     def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
         self._state = state
+        #: dict[str, Any]: The raw model data, as returned by the API.
         self.raw_data = raw_data
+        #: The type of the attachment.
+        #:
+        #: .. note::
+        #:
+        #:     Checking using ``type()`` or :func:`isinstance()` should be
+        #:     preferred over using this attribute.
         self.type: str = raw_data["type"]
 
     def __repr__(self) -> str:
@@ -86,6 +99,15 @@ class _UnknownEvent(Event):
 
 @final
 class ErrorEvent(Event):
+    """
+    ErrorEvent()
+
+    An error occurred which meant that the client could not authenticate.
+
+    Attributes:
+        error: A raw error id (type).
+    """
+
     __slots__ = ("error",)
 
     def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
@@ -95,11 +117,25 @@ class ErrorEvent(Event):
 
 @final
 class AuthenticatedEvent(Event):
+    """
+    AuthenticatedEvent()
+
+    The Authenticated event. This indicates that server has authenticated
+    your connection and you will shortly start receiving data.
+    """
+
     __slots__ = ()
 
 
 @final
 class ReadyEvent(Event):
+    """
+    ReadyEvent()
+
+    The event sent by the server after authentication. This is handled by the gateway
+    and should generally not be listened to.
+    """
+
     __slots__ = ()
 
     async def _gateway_handle(self) -> None:
@@ -125,6 +161,15 @@ class ReadyEvent(Event):
 
 @final
 class MessageEvent(Event):
+    """
+    MessageEvent()
+
+    The event sent when a message is received.
+
+    Attributes:
+        message: The received message.
+    """
+
     __slots__ = ("message",)
     message: Message
 
@@ -136,28 +181,56 @@ class MessageEvent(Event):
 
 @final
 class MessageUpdateEvent(Event):
+    """
+    MessageUpdateEvent()
+
+    The event sent when a message is edited or otherwise updated.
+    """
+
     __slots__ = ("_cs_data",)
 
     @cached_slot_property
     def data(self) -> dict[str, Any]:
+        """
+        A raw partial message dictionary containing the changed fields of the message.
+        """
         return self.raw_data["data"]
 
 
 @final
 class MessageDeleteEvent(Event):
+    """
+    MessageDeleteEvent()
+
+    The event sent when a message has been deleted.
+    """
+
     __slots__ = ("_cs_message_id", "_cs_channel_id")
 
     @cached_slot_property
     def message_id(self) -> str:
+        """The ID of the deleted message."""
         return self.raw_data["id"]
 
     @cached_slot_property
     def channel_id(self) -> str:
+        """The ID of the channel the deleted message was sent in."""
         return self.raw_data["channel"]
 
 
 @final
 class ChannelCreateEvent(Event):
+    """
+    ChannelCreateEvent()
+
+    The event sent when a channel is created.
+
+    Attributes:
+        channel_id: The ID of the created channel.
+        server_id: The ID of the server this channel was created in, if any.
+        channel: The created channel.
+    """
+
     __slots__ = ("channel_id", "channel", "server_id")
     channel: Channel
 
@@ -175,6 +248,22 @@ class ChannelCreateEvent(Event):
 
 @final
 class ChannelUpdateEvent(Event):
+    """
+    ChannelUpdateEvent()
+
+    The event sent when the channel details are updated.
+
+    Attributes:
+        channel_id: The ID of the updated channel.
+        channel: The updated channel.
+        data:
+            A raw partial channel dictionary containing the changed fields
+            of the channel.
+        clear:
+            A raw string containing the name of the cleared field on the channel,
+            if any.
+    """
+
     __slots__ = ("channel_id", "channel", "data", "clear")
     channel: Channel
 
@@ -191,6 +280,16 @@ class ChannelUpdateEvent(Event):
 
 @final
 class ChannelDeleteEvent(Event):
+    """
+    ChannelDeleteEvent()
+
+    The event sent when the channel has been deleted.
+
+    Attributes:
+        channel_id: The ID of the deleted channel.
+        channel: The deleted channel.
+    """
+
     __slots__ = ("channel_id", "channel")
     channel: Optional[Channel]
 
@@ -207,6 +306,17 @@ class ChannelDeleteEvent(Event):
 
 @final
 class ChannelGroupJoinEvent(Event):
+    """
+    ChannelGroupJoinEvent()
+
+    The event sent when a user has joined a group channel.
+
+    Attributes:
+        channel_id: The ID of the channel.
+        channel: The channel.
+        user_id: The ID of the user that joined the channel.
+    """
+
     __slots__ = ("channel_id", "channel", "user_id")
     channel: Channel
 
@@ -223,6 +333,17 @@ class ChannelGroupJoinEvent(Event):
 
 @final
 class ChannelGroupLeaveEvent(Event):
+    """
+    ChannelGroupLeaveEvent()
+
+    The event sent when a user has left a group channel.
+
+    Attributes:
+        channel_id: The ID of the channel.
+        channel: The channel.
+        user_id: The ID of the user that left the channel.
+    """
+
     __slots__ = ("channel_id", "channel", "user_id")
     channel: Channel
 
@@ -240,32 +361,55 @@ class ChannelGroupLeaveEvent(Event):
 
 @final
 class ChannelStartTypingEvent(Event):
+    """
+    ChannelStartTypingEvent()
+
+    The event sent when a user has started typing in a channel.
+    """
+
     __slots__ = ("_cs_channel_id", "_cs_channel")
 
     @cached_slot_property
     def channel_id(self) -> str:
+        """The ID of the channel."""
         return self.raw_data["id"]
 
     @cached_slot_property
     def channel(self) -> Channel:
+        """The channel."""
         return self._state.channels[self.channel_id]
 
 
 @final
 class ChannelStopTypingEvent(Event):
+    """
+    ChannelStopTypingEvent()
+
+    The event sent when a user has stopped typing in a channel.
+    """
+
     __slots__ = ("_cs_channel_id", "_cs_channel")
 
     @cached_slot_property
     def channel_id(self) -> str:
+        """The ID of the channel."""
         return self.raw_data["id"]
 
     @cached_slot_property
     def channel(self) -> Channel:
+        """The channel."""
         return self._state.channels[self.channel_id]
 
 
 @final
 class ChannelAckEvent(Event):
+    """
+    ChannelAckEvent()
+
+    The event sent when the client user has acknowledged new messages in a channel
+    up to the given message ID.
+    """
+
     __slots__ = (
         "_cs_channel_id",
         "_cs_channel",
@@ -275,23 +419,43 @@ class ChannelAckEvent(Event):
 
     @cached_slot_property
     def channel_id(self) -> str:
+        """The ID of the channel."""
         return self.raw_data["id"]
 
     @cached_slot_property
     def channel(self) -> Channel:
+        """The channel."""
         return self._state.channels[self.channel_id]
 
     @cached_slot_property
     def user_id(self) -> str:
+        """The ID of the client user."""
         return self.raw_data["user"]
 
     @cached_slot_property
     def message_id(self) -> str:
+        """The ID of the last acknowledged message."""
         return self.raw_data["message_id"]
 
 
 @final
 class ServerUpdateEvent(Event):
+    """
+    ServerUpdateEvent()
+
+    The event sent when the server details are updated.
+
+    Attributes:
+        server_id: The ID of the updated server.
+        server: The updated server.
+        data:
+            A raw partial server dictionary containing the changed fields
+            of the server.
+        clear:
+            A raw string containing the name of the cleared field on the server,
+            if any.
+    """
+
     __slots__ = ("server_id", "server", "data", "clear")
     server: Server
 
@@ -308,6 +472,16 @@ class ServerUpdateEvent(Event):
 
 @final
 class ServerDeleteEvent(Event):
+    """
+    ServerDeleteEvent()
+
+    The event sent when the server has been deleted.
+
+    Attributes:
+        server_id: The ID of the deleted server.
+        server: The deleted server.
+    """
+
     __slots__ = ("server_id", "server")
     server: Server
 
@@ -321,6 +495,23 @@ class ServerDeleteEvent(Event):
 
 @final
 class ServerMemberUpdateEvent(Event):
+    """
+    ServerMemberUpdateEvent()
+
+    The event sent when the server member details are updated.
+
+    Attributes:
+        server_id: The ID of the updated member's server.
+        server: The updated member's server.
+        user_id: The ID of the updated member.
+        data:
+            A raw partial member dictionary containing the changed fields
+            of the member.
+        clear:
+            A raw string containing the name of the cleared field on the member,
+            if any.
+    """
+
     __slots__ = ("server_id", "server", "user_id", "data", "clear")
     server: Server
 
@@ -340,6 +531,18 @@ class ServerMemberUpdateEvent(Event):
 
 @final
 class ServerMemberJoinEvent(Event):
+    """
+    ServerMemberJoinEvent()
+
+    The event sent when a user joins a server.
+
+    Attributes:
+        server_id: The ID of the joined server.
+        server: The joined server.
+        user_id: The ID of the user that joined the server.
+        member: The member object for the newly joined user.
+    """
+
     __slots__ = ("server_id", "server", "user_id", "member")
     server: Server
     member: Member
@@ -360,6 +563,18 @@ class ServerMemberJoinEvent(Event):
 
 @final
 class ServerMemberLeaveEvent(Event):
+    """
+    ServerMemberLeaveEvent()
+
+    The event sent when a user leaves a server.
+
+    Attributes:
+        server_id: The ID of the server.
+        server: The server.
+        user_id: The ID of the user that left the server.
+        member: The member object for the user that left the server, if one was cached.
+    """
+
     __slots__ = ("server_id", "server", "user_id", "member")
     server: Server
     member: Optional[Member]
@@ -378,6 +593,25 @@ class ServerMemberLeaveEvent(Event):
 
 @final
 class ServerRoleUpdateEvent(Event):
+    """
+    ServerRoleUpdateEvent()
+
+    The event sent when a server role has been updated or created.
+
+    Attributes:
+        server_id: The ID of the server.
+        server: The server.
+        role_id: The ID of the created/updated role.
+        role: The created/updated role.
+        data:
+            A raw partial role dictionary containing the changed fields
+            of the role.
+        clear:
+            A raw string containing the name of the cleared field on the role,
+            if any.
+        new: Whether this is a newly created role.
+    """
+
     __slots__ = ("server_id", "server", "role_id", "role", "data", "clear", "new")
     server: Server
     role: Role
@@ -405,6 +639,18 @@ class ServerRoleUpdateEvent(Event):
 
 @final
 class ServerRoleDeleteEvent(Event):
+    """
+    ServerRoleDeleteEvent()
+
+    The event sent when a server role has been deleted.
+
+    Attributes:
+        server_id: The ID of the server.
+        server: The server.
+        role_id: The ID of the deleted role.
+        role: The deleted role.
+    """
+
     __slots__ = ("server_id", "server", "role_id", "role")
     server: Server
     role: Role
@@ -421,6 +667,21 @@ class ServerRoleDeleteEvent(Event):
 
 @final
 class UserUpdateEvent(Event):
+    """
+    UserUpdateEvent()
+
+    The event sent when a user has been updated.
+
+    Attributes:
+        user_id: The ID of the updated user.
+        data:
+            A raw partial user dictionary containing the changed fields
+            of the user.
+        clear:
+            A raw string containing the name of the cleared field on the user,
+            if any.
+    """
+
     __slots__ = ("user_id", "data", "clear")
 
     def __init__(self, state: State, raw_data: dict[str, Any]) -> None:
@@ -438,6 +699,17 @@ class UserUpdateEvent(Event):
 
 @final
 class UserRelationshipEvent(Event):
+    """
+    UserRelationshipEvent()
+
+    The event sent when the client user's relationship with another user has changed.
+
+    Attributes:
+        self_id: The ID of the client user.
+        user_id: The ID of the other user with whom the relationship has changed.
+        status: The new relationship status.
+    """
+
     __slots__ = ("self_id", "user_id", "status")
 
     def __init__(self, state: State, raw_data: dict[str, Any]) -> None:

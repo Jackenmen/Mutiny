@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Channels"""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Optional, Union, final
@@ -42,6 +44,23 @@ __all__ = (
 
 
 class Channel(StatefulResource):
+    """
+    Channel()
+
+    Base class for all channel classes.
+
+    Attributes:
+        id: The channel ID.
+        type:
+            The channel's type.
+
+            .. note::
+
+                Checking using ``type()`` or :func:`isinstance()` should be
+                preferred over using this attribute.
+        nonce: Nonce value, used to prevent double requests to create.
+    """
+
     id: str = field("_id")
     channel_type: str = field("channel_type")
     nonce: Optional[str] = field("nonce", default=None)
@@ -64,11 +83,36 @@ class _UnknownChannel(Channel):
 
 @final
 class SavedMessagesChannel(Channel):
+    """
+    SavedMessagesChannel()
+
+    Represent the 'Saved Notes' channel of a user.
+
+    Attributes:
+        user_id: The ID of a user who created and owns the channel.
+    """
+
     user_id: str = field("user")
 
 
 @final
 class DMChannel(Channel):
+    """
+    DMChannel()
+
+    Represents a direct message (DM) channel.
+
+    Attributes:
+        active: Indicates whether this DM is active.
+        recipient_ids: List of user IDs who are participating in this DM.
+        last_message_id:
+            ID of the last message sent in this channel if any.
+
+            .. note::
+
+                This only includes non-system messages.
+    """
+
     active: bool = field("active")
     recipient_ids: list[str] = field("recipients")
     last_message_id: Optional[str] = field("last_message", factory=True, default={})
@@ -100,6 +144,26 @@ class DMChannel(Channel):
 
 @final
 class GroupChannel(Channel):
+    """
+    GroupChannel()
+
+    Represents a group channel.
+
+    Attributes:
+        recipient_ids: List of user IDs who are participating in this channel.
+        name: The channel's name.
+        owner_id: The user ID of the owner of this channel.
+        description: The channel's description if provided.
+        last_message_id:
+            ID of the last message sent in this channel if any.
+
+            .. note::
+
+                This only includes non-system messages.
+        icon: The channel's icon if provided.
+        permissions: The permissions in this channel.
+    """
+
     recipient_ids: list[str] = field("recipients")
     name: str = field("name")
     owner_id: str = field("owner")
@@ -144,6 +208,26 @@ class GroupChannel(Channel):
 
 @final
 class TextChannel(Channel):
+    """
+    TextChannel()
+
+    Represents a server text channel.
+
+    Attributes:
+        server_id: The ID of the server the channel belongs to.
+        name: The channel's name.
+        description: The channel's description if provided.
+        icon: The channel's icon if provided.
+        default_permissions: The default permissions in this channel.
+        role_permissions: The mapping of role ID to its permissions in this channel.
+        last_message_id:
+            ID of the last message sent in this channel if any.
+
+            .. note::
+
+                This only includes non-system messages.
+    """
+
     server_id: str = field("server")
     name: str = field("name")
     description: Optional[str] = field("description", default=None)
@@ -188,6 +272,20 @@ class TextChannel(Channel):
 
 @final
 class VoiceChannel(Channel):
+    """
+    VoiceChannel()
+
+    Represents a server voice channel.
+
+    Attributes:
+        server_id: The ID of the server the channel belongs to.
+        name: The channel's name.
+        description: The channel's description if provided.
+        icon: The channel's icon if provided.
+        default_permissions: The default permissions in this channel.
+        role_permissions: The mapping of role ID to its permissions in this channel.
+    """
+
     server_id: str = field("server")
     name: str = field("name")
     description: Optional[str] = field("description", default=None)

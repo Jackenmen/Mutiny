@@ -237,9 +237,21 @@ class _ModelMeta(type):
 
 
 class Model(metaclass=_ModelMeta):
+    """
+    Model()
+
+    Base class for all models in the library.
+    """
+
     __slots__ = ("raw_data",)
 
     def __init__(self, raw_data: dict[str, Any]) -> None:
+        #: dict[str, Any]: The raw model data, as given by the API.
+        #:
+        #: .. attention::
+        #:
+        #:     While this is not enforced, this dictionary should be considered
+        #:     read-only, and you should NOT change its contents.
         self.raw_data = raw_data
         self._update_from_dict(raw_data, init=True)
 
@@ -279,4 +291,7 @@ class StatefulResource(StatefulModel):
 
     @cached_slot_property
     def created_at(self) -> datetime.datetime:
+        """
+        datetime.datetime: The resource's creation time as an aware UTC datetime object.
+        """
         return ulid.from_str(self.id).timestamp().datetime
