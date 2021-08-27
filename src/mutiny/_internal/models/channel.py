@@ -33,9 +33,9 @@ if TYPE_CHECKING:
 
 __all__ = (
     "Channel",
-    "SavedMessages",
-    "DirectMessage",
-    "Group",
+    "SavedMessagesChannel",
+    "DMChannel",
+    "GroupChannel",
     "TextChannel",
     "VoiceChannel",
 )
@@ -63,12 +63,12 @@ class _UnknownChannel(Channel):
 
 
 @final
-class SavedMessages(Channel):
+class SavedMessagesChannel(Channel):
     user_id: str = field("user")
 
 
 @final
-class DirectMessage(Channel):
+class DMChannel(Channel):
     active: bool = field("active")
     recipient_ids: list[str] = field("recipients")
     last_message_id: Optional[str] = field("last_message", factory=True, default={})
@@ -99,7 +99,7 @@ class DirectMessage(Channel):
 
 
 @final
-class Group(Channel):
+class GroupChannel(Channel):
     recipient_ids: list[str] = field("recipients")
     name: str = field("name")
     owner_id: str = field("owner")
@@ -227,9 +227,9 @@ class VoiceChannel(Channel):
 
 
 CHANNEL_TYPES = {
-    "SavedMessages": SavedMessages,
-    "DirectMessage": DirectMessage,
-    "Group": Group,
+    "SavedMessages": SavedMessagesChannel,
+    "DirectMessage": DMChannel,
+    "Group": GroupChannel,
     "TextChannel": TextChannel,
     "VoiceChannel": VoiceChannel,
 }

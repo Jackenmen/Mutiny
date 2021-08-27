@@ -23,9 +23,9 @@ from ._internal.models.attachment import (
 )
 from ._internal.models.channel import (
     Channel,
-    DirectMessage,
-    Group,
-    SavedMessages,
+    DMChannel,
+    GroupChannel,
+    SavedMessagesChannel,
     TextChannel,
     VoiceChannel,
 )
@@ -85,9 +85,9 @@ __all__ = (
     "VideoMetadata",
     # .channel
     "Channel",
-    "DirectMessage",
-    "Group",
-    "SavedMessages",
+    "DMChannel",
+    "GroupChannel",
+    "SavedMessagesChannel",
     "TextChannel",
     "VoiceChannel",
     # .embed
