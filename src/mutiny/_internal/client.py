@@ -200,6 +200,18 @@ class Client:
         """
         self._event_handler.add_listener(listener, event_cls=event_cls)
 
+    @overload
+    def listen(
+        self, event_cls: type[EventT_contra]
+    ) -> Callable[[EventListener[EventT_contra, T]], EventListener[EventT_contra, T]]:
+        ...
+
+    @overload
+    def listen(
+        self, event_cls: None = ...
+    ) -> Callable[[EventListener[EventT_contra, T]], EventListener[EventT_contra, T]]:
+        ...
+
     def listen(
         self, event_cls: Optional[type[Event]] = None
     ) -> Callable[[EventListener[EventT_contra, T]], EventListener[EventT_contra, T]]:
