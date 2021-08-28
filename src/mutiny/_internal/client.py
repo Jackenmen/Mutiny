@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import asyncio
 from typing import Callable, Optional, TypeVar, overload
 
 import aiohttp
 
 from ..events import Event
 from .authentication_data import AuthenticationData
-from .event_handler import EventHandler, EventListener, EventT_contra
+from .event_handler import EventHandler, EventListener, EventT, EventT_contra
 from .gateway import HAS_MSGPACK, GatewayClient, GatewayMessageFormat
 from .rest import RESTClient
 from .state import State
@@ -130,6 +131,19 @@ class Client:
 
     def __repr__(self) -> str:
         return f"<mutiny.{self.__class__.__name__} object at {hex(id(self))}>"
+
+    async def wait_for(
+        self,
+        event_cls: type[EventT],
+        /,
+        *,
+        check: Optional[Callable[[EventT], bool]] = None,
+        timeout: Optional[int] = None,
+    ) -> EventT:
+        future = self._event_handler.add_waiter(event_cls, check=check)
+        # wait_for() automatically cancels the future on timeout so
+        # we don't need any additional handling here
+        return await asyncio.wait_for(future, timeout=timeout)
 
     async def start(self) -> None:
         """A shorthand function for `login()` + `connect()`."""

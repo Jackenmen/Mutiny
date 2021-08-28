@@ -17,13 +17,14 @@ import inspect
 import itertools
 import sys
 import traceback
-from typing import Any, Coroutine, Optional, Protocol, TypeVar, get_type_hints
+from typing import Any, Callable, Coroutine, Optional, Protocol, TypeVar, get_type_hints
 
 from ..events import Event
 
-__all__ = ("EventHandler", "EventListener", "EventT_contra")
+__all__ = ("EventHandler", "EventListener", "EventT", "EventT_contra")
 
 _T_co = TypeVar("_T_co", covariant=True)
+EventT = TypeVar("EventT", bound=Event)
 EventT_contra = TypeVar("EventT_contra", bound=Event, contravariant=True)
 
 
@@ -35,6 +36,18 @@ class EventListener(Protocol[EventT_contra, _T_co]):
 class EventHandler:
     def __init__(self) -> None:
         self.listeners: dict[type[Event], list[EventListener]] = {}
+        self.waiters: dict[
+            type[Event], list[tuple[asyncio.Future, Optional[Callable[[Event], bool]]]]
+        ] = {}
+
+    def add_waiter(
+        self, event_cls: type[Event], *, check: Optional[Callable[[Event], bool]]
+    ) -> asyncio.Future:
+        loop = asyncio.get_running_loop()
+        future = loop.create_future()
+        waiters = self.waiters.setdefault(event_cls, [])
+        waiters.append((future, check))
+        return future
 
     def add_listener(
         self, listener: EventListener, *, event_cls: Optional[type[Event]] = None
@@ -78,6 +91,32 @@ class EventHandler:
         # islice used to skip `object`
         for cls in itertools.islice(reversed(event.__class__.__mro__), 1, None):
             assert issubclass(cls, Event)
+            waiters = self.waiters.get(cls)
+            if waiters is not None:
+                to_remove = []
+                for idx, (future, check) in enumerate(waiters):
+                    if future.cancelled():
+                        to_remove.append(idx)
+                        continue
+
+                    result = True
+                    if check is not None:
+                        try:
+                            result = check(event)
+                        except Exception as e:
+                            result = False
+                            future.set_exception(e)
+                            to_remove.append(idx)
+                    if result:
+                        future.set_result(event)
+                        to_remove.append(idx)
+
+                if len(to_remove) == len(waiters):
+                    self.waiters.pop(cls)
+                else:
+                    for idx in reversed(to_remove):
+                        waiters.pop(idx)
+
             for listener in self.listeners.get(cls, []):
                 asyncio.create_task(self.call_listener(listener, event))
 
