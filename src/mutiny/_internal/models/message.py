@@ -25,6 +25,7 @@ from .bases import Model, ParserData, StatefulResource, field
 from .embed import Embed
 
 __all__ = (
+    "Message",
     "SystemMessage",
     "TextSystemMessage",
     "UserAddedSystemMessage",
@@ -36,7 +37,6 @@ __all__ = (
     "ChannelRenamedSystemMessage",
     "ChannelDescriptionChangedSystemMessage",
     "ChannelIconChangedSystemMessage",
-    "Message",
 )
 
 

@@ -23,9 +23,9 @@ from ._internal.enums import (
 
 __all__ = (
     "AttachmentTag",
-    "BandcampType",
     "ImageSize",
+    "BandcampType",
+    "TwitchType",
     "Presence",
     "RelationshipStatus",
-    "TwitchType",
 )

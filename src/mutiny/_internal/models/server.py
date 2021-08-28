@@ -29,7 +29,13 @@ if TYPE_CHECKING:
         ServerUpdateEvent,
     )
 
-__all__ = ("Category", "SystemMessageChannels", "Role", "Member", "Server")
+__all__ = (
+    "Server",
+    "Category",
+    "Member",
+    "Role",
+    "SystemMessageChannels",
+)
 
 
 @final

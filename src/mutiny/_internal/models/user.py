@@ -28,11 +28,11 @@ if TYPE_CHECKING:
     from ..state import State
 
 __all__ = (
-    "Status",
-    "Relationship",
-    "BotInfo",
-    "UserProfile",
     "User",
+    "BotInfo",
+    "Relationship",
+    "Status",
+    "UserProfile",
 )
 
 
