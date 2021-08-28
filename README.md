@@ -24,7 +24,9 @@ py -3.9 -m pip install -U mutiny
 
 ## Documentation
 
-There is no documentation yet, you can look at [examples folder](examples/)
+Read [Mutiny's documentation](https://mutiny.readthedocs.io).
+
+You might also want to look at [the examples folder](examples/)
 if you want to get the hang of library's basic functionality.
 
 ## Links
