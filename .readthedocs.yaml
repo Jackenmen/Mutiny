@@ -1,0 +1,15 @@
+version: 2
+
+build:
+  image: testing
+
+python:
+  version: 3.9
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - docs
+
+sphinx:
+  fail_on_warning: true

@@ -39,6 +39,15 @@ dependencies = [
 msgpack = [
     "msgpack~=1.0"
 ]
+docs = [
+    "furo==2021.08.17.beta43",
+    "Sphinx~=4.1.2",
+    "sphinx-copybutton~=0.4.0",
+    "sphinx-design~=0.0.12",
+    "sphinx-jinja~=1.1",
+    "sphinx-prompt~=1.5",
+    "sphinxcontrib-trio~=1.1.2",
+]
 dev = [
     "black==21.7b0",
     "flake8==3.9.2",
