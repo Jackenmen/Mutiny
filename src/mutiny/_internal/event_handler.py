@@ -37,16 +37,18 @@ class EventHandler:
     def __init__(self) -> None:
         self.listeners: dict[type[Event], list[EventListener]] = {}
         self.waiters: dict[
-            type[Event], list[tuple[asyncio.Future, Optional[Callable[[Event], bool]]]]
+            type[Event],
+            list[tuple[asyncio.Future[Event], Optional[Callable[[Event], bool]]]],
         ] = {}
 
     def add_waiter(
-        self, event_cls: type[Event], *, check: Optional[Callable[[Event], bool]]
+        self, event_cls: type[EventT], *, check: Optional[Callable[[EventT], bool]]
     ) -> asyncio.Future:
         loop = asyncio.get_running_loop()
         future = loop.create_future()
         waiters = self.waiters.setdefault(event_cls, [])
-        waiters.append((future, check))
+        # mypy yells about this due to the usage of TypeVar even though it's bounded...
+        waiters.append((future, check))  # type: ignore[arg-type]
         return future
 
     def add_listener(
