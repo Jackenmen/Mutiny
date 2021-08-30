@@ -205,18 +205,17 @@ def linkcode_resolve(domain: str, info: dict[str, Any]) -> Optional[str]:
         return None
 
     source_lines: list[str] = []
-    line_number: Optional[int]
+    first_line_number: Optional[int]
     try:
-        source_lines, line_number = inspect.getsourcelines(obj)
+        source_lines, first_line_number = inspect.getsourcelines(obj)
     except OSError:
-        line_number = None
+        first_line_number = None
 
-    if line_number is None:
+    if first_line_number is None:
         line_anchor = ""
     else:
-        first_line_number = line_number + 1
-        last_line_number = first_line_number + len(source_lines)
-        line_anchor = f"#L{line_number}-L{last_line_number}"
+        last_line_number = first_line_number + len(source_lines) - 1
+        line_anchor = f"#L{first_line_number}-L{last_line_number}"
 
     file_name = Path(file_name).relative_to(SRC_PATH).as_posix()
 
