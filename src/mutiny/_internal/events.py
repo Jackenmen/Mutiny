@@ -718,6 +718,7 @@ class ServerRoleUpdateEvent(Event):
             role = self.server.roles[self.role_id]
         except KeyError:
             self.new = True
+            self.data["id"] = self.role_id
             role = self.server.roles[self.role_id] = Role(self._state, self.data)
         else:
             self.new = False
