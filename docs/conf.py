@@ -24,7 +24,10 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 from types import ModuleType
-from typing import Any, Iterator, Optional
+from typing import Any, Iterator, NewType, Optional
+
+from sphinx.application import Sphinx
+from sphinx.ext.autodoc import Options
 
 import mutiny
 
@@ -124,6 +127,16 @@ autodoc_type_aliases = {
     for name in module.__all__
 }
 
+
+def fixup_base_reprs(
+    app: Sphinx, name: str, obj: type, options: Options, bases: list[type]
+) -> None:
+    for idx, base in enumerate(bases):
+        alias = autodoc_type_aliases.get(base.__name__)
+        if alias is not None:
+            bases[idx] = NewType(alias, int)
+
+
 # -- Options for sphinx-jinja extension --------------------------------------
 
 
@@ -165,7 +178,7 @@ intersphinx_mapping = {
 # -- Options for linkcode extension ------------------------------------------
 
 GITHUB_URL = "https://github.com/jack1142/Mutiny"
-SRC_PATH = Path(inspect.getsourcefile(mutiny)).parent.parent
+SRC_PATH = Path(inspect.getsourcefile(mutiny)).parent.parent  # type: ignore[arg-type]
 
 
 def linkcode_resolve(domain: str, info: dict[str, Any]) -> Optional[str]:
@@ -207,3 +220,7 @@ def linkcode_resolve(domain: str, info: dict[str, Any]) -> Optional[str]:
 
     branch = "main" if context.get("version_slug") == "latest" else version
     return f"{GITHUB_URL}/blob/{branch}/src/{file_name}{line_anchor}"
+
+
+def setup(app: Sphinx) -> None:
+    app.connect("autodoc-process-bases", fixup_base_reprs)
