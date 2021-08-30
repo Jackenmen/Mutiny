@@ -175,3 +175,8 @@ class Attachment(StatefulResource):
         if raw_data is None:
             return None
         return cls(state, raw_data)
+
+    @property
+    def url(self) -> str:
+        """The attachment URL."""
+        return f"{self._state.rest.cdn_url}/{self.tag.value}/{self.id}/{self.filename}"
