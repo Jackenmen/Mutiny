@@ -2,6 +2,7 @@
 > Async ready API wrapper for Revolt API written in Python.
 
 [![Sponsor on GitHub](https://img.shields.io/github/sponsors/jack1142?logo=github)](https://github.com/sponsors/jack1142)
+[![PyPI](https://img.shields.io/pypi/v/mutiny)](https://pypi.org/project/mutiny)
 [![Documentation Status](https://readthedocs.org/projects/mutiny/badge/)](https://mutiny.readthedocs.io)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://user-images.githubusercontent.com/6032823/111363465-600fe880-8690-11eb-8377-ec1d4d5ff981.png)](https://github.com/PyCQA/isort)
