@@ -126,6 +126,8 @@ autodoc_type_aliases = {
     for module_name, module in modules.items()
     for name in module.__all__
 }
+# this fixes very long overload signature for this internal type
+autodoc_type_aliases["EventListener"] = "EventListener"
 
 
 def fixup_base_reprs(

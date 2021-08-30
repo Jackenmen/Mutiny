@@ -141,6 +141,25 @@ class Client:
         check: Optional[Callable[[EventT], bool]] = None,
         timeout: Optional[int] = None,
     ) -> EventT:
+        """
+        Waits for a matching event to be dispatched.
+
+        Parameters:
+            event_cls: The event to wait for.
+            check:
+                A predicate to check what to wait for. It will be called with
+                an event of a type ``event_cls`` and should return `True`
+                if the event should match.
+            timeout:
+                The numbers of seconds to wait for, or `None` to block until
+                a valid event is received.
+
+        Raises:
+            asyncio.TimeoutError: If a timeout occurs.
+
+        Returns:
+            An event of a type ``event_cls``.
+        """
         future = self._event_handler.add_waiter(event_cls, check=check)
         # wait_for() automatically cancels the future on timeout so
         # we don't need any additional handling here
@@ -151,8 +170,14 @@ class Client:
         Creates a websocket connection and lets the websocket listen to messages
         from the Revolt's gateway.
 
-        This is a loop that runs the entire event systems. Control is not resumed until
+        This is a loop that runs the entire event system. Control is not resumed until
         the WebSocket connection is terminated.
+
+        Raises:
+            InvalidCredentials: If the authentication fails due to invalid credentials.
+            OnboardingNotFinished:
+                If the authentication fails due to unfinished onboarding.
+            AuthenticationError: If the authentication fails for a different reason.
         """
         # gateway prepares the REST client so no need to do it from here
         await self._gateway.start()
