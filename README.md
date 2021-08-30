@@ -31,8 +31,8 @@ if you want to get the hang of library's basic functionality.
 
 ## Links
 
-[Mutiny's official Revolt server](https://app.revolt.chat/invite/GGW5WsgZ)
-[GitHub Sponsors](https://github.com/sponsors/jack1142)
+- [Mutiny's official Revolt server](https://app.revolt.chat/invite/GGW5WsgZ)
+- [GitHub Sponsors](https://github.com/sponsors/jack1142)
 
 ## License
 
