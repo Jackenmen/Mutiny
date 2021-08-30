@@ -12,22 +12,45 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
+import asyncio
+from typing import TYPE_CHECKING
+
 from .gateway import GatewayClient
 from .models.channel import Channel
 from .models.server import Server
 from .models.user import User
 from .rest import RESTClient
 
+if TYPE_CHECKING:
+    from .client import Client
+
 
 class State:
-    __slots__ = ("gateway", "rest", "channels", "servers", "users", "user")
-
-    gateway: GatewayClient
-    rest: RESTClient
     user: User
+    rest: RESTClient
+    gateway: GatewayClient
+    channels: dict[str, Channel]
+    servers: dict[str, Server]
+    users: dict[str, User]
 
-    def __init__(self) -> None:
+    def __init__(self, client: Client) -> None:
+        self.client = client
+        self.ready = asyncio.Event()
+        self.clear()
+
+    def clear(self) -> None:
+        try:
+            del self.user
+        except AttributeError:
+            pass
+
+        self.rest = RESTClient.from_state(self)
+        self.gateway = GatewayClient.from_state(self)
         # caches
         self.channels: dict[str, Channel] = {}
         self.servers: dict[str, Server] = {}
         self.users: dict[str, User] = {}
+        # ready event
+        self.ready.clear()

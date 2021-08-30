@@ -15,13 +15,10 @@
 import asyncio
 from typing import Callable, Optional, TypeVar, overload
 
-import aiohttp
-
 from ..events import Event
 from .authentication_data import AuthenticationData
 from .event_handler import EventHandler, EventListener, EventT, EventT_contra
-from .gateway import HAS_MSGPACK, GatewayClient, GatewayMessageFormat
-from .rest import RESTClient
+from .gateway import HAS_MSGPACK, GatewayMessageFormat
 from .state import State
 
 T = TypeVar("T")
@@ -77,10 +74,6 @@ class Client:
                     pip install -U mutiny[msgpack]
     """
 
-    _session: aiohttp.ClientSession
-    _gateway: GatewayClient
-    _rest: RESTClient
-
     @overload
     def __init__(
         self,
@@ -126,11 +119,19 @@ class Client:
         if gateway_format is None:
             gateway_format = "msgpack" if HAS_MSGPACK else "json"
         self._gateway_format: GatewayMessageFormat = gateway_format
-        self._state = State()
+        self._state = State(self)
         self._closed = False
 
     def __repr__(self) -> str:
         return f"<mutiny.{self.__class__.__name__} object at {hex(id(self))}>"
+
+    @property
+    def _rest(self):
+        return self._state.rest
+
+    @property
+    def _gateway(self):
+        return self._state.gateway
 
     async def wait_for(
         self,
@@ -146,29 +147,25 @@ class Client:
         return await asyncio.wait_for(future, timeout=timeout)
 
     async def start(self) -> None:
-        """A shorthand function for `login()` + `connect()`."""
-        await self.login()
-        await self.connect()
-
-    async def login(self) -> None:
-        """Logs in the client. Necessary to make the REST API requests."""
-        self._session = aiohttp.ClientSession()
-        self._rest = await RESTClient.from_client(self)
-
-    async def connect(self) -> None:
         """
         Creates a websocket connection and lets the websocket listen to messages
         from the Revolt's gateway.
 
         This is a loop that runs the entire event systems. Control is not resumed until
         the WebSocket connection is terminated.
-
-        .. note::
-
-            This requires `login()` to be called before it can be used.
         """
-        self._gateway = GatewayClient.from_client(self)
-        await self._gateway.connect()
+        # gateway prepares the REST client so no need to do it from here
+        await self._gateway.start()
+
+    async def login(self) -> None:
+        """
+        Logs in the client. Necessary to make the REST API requests.
+
+        This will be called for you if you're connecting to the gateway using `start()`
+        and should only need to be called if you only want to make API requests without
+        connecting to the gateway.
+        """
+        await self._rest.prepare()
 
     async def close(self) -> None:
         """
@@ -179,7 +176,23 @@ class Client:
         if self._closed:
             return
         await self._gateway.close()
-        await self._session.close()
+        await self._rest.close()
+
+    def clear(self) -> None:
+        """
+        Clears all of Client's state and allows the Client to be used again.
+
+        This is a separate action from `close()` and should only be done
+        if you want to use the Client for a new connection.
+
+        .. note::
+
+            For a proper teardown of the client and its connections,
+            you need to call `close()` after finishing the previous connection
+            and before you call this method.
+        """
+        self._closed = False
+        self._state.clear()
 
     def add_listener(
         self, listener: EventListener, *, event_cls: Optional[type[Event]] = None

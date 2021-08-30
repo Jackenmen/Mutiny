@@ -23,39 +23,56 @@ from aiohttp import hdrs
 from .authentication_data import AuthenticationData
 
 if TYPE_CHECKING:
-    from .client import Client
     from .state import State
 
 __all__ = ("RESTClient",)
 
 
 class RESTClient:
+    session: aiohttp.ClientSession
+    configuration: dict[str, Any]
+
     def __init__(
         self,
         *,
-        session: aiohttp.ClientSession,
         authentication_data: AuthenticationData,
         api_url: str,
         state: State,
     ) -> None:
-        self.session = session
         self.authentication_data = authentication_data
         self.api_url = api_url
-        self.configuration: dict[str, Any] = {}
         self.headers = self.authentication_data.to_headers()
         self.state = state
-        state.rest = self
+        self._prepared = False
 
     @classmethod
-    async def from_client(cls, client: Client) -> RESTClient:
+    def from_state(cls, state: State) -> RESTClient:
+        client = state.client
         rest = RESTClient(
-            session=client._session,
             authentication_data=client._authentication_data,
             api_url=client.api_url,
-            state=client._state,
+            state=state,
         )
-        await rest.fetch_configuration()
         return rest
+
+    async def prepare(self) -> None:
+        if self._prepared:
+            return
+        self.session = aiohttp.ClientSession()
+        await self.fetch_configuration()
+        self._prepared = True
+
+    async def close(self) -> None:
+        if not self._prepared:
+            return
+        if not self.session.closed:
+            await self.session.close()
+
+    def clear(self) -> None:
+        if not self._prepared:
+            return
+        del self.session
+        del self.configuration
 
     @property
     def cdn_url(self) -> str:

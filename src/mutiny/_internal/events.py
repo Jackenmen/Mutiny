@@ -14,8 +14,10 @@
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING, Any, Optional, final
 
+from .errors import AuthenticationError, InvalidCredentials, OnboardingNotFinished
 from .models.channel import Channel
 from .models.message import Message
 from .models.server import Member, Role, Server
@@ -51,6 +53,8 @@ __all__ = (
     "UserUpdateEvent",
     "UserRelationshipEvent",
 )
+
+_log = logging.getLogger(__name__)
 
 
 class Event:
@@ -115,6 +119,27 @@ class ErrorEvent(Event):
         super().__init__(state, raw_data)
         self.error = raw_data["error"]
 
+    async def _gateway_handle(self) -> None:
+        if self.error == "AlreadyAuthenticated":
+            _log.warning("The client tried to authenticate for the second time.")
+            return
+        if self._state.gateway.authenticated:
+            # it's too late to raise an exception and have it propagate to
+            # the entrypoint
+            _log.error("Received error event: %s", self.error)
+            return
+        if self.error == "InvalidSession":
+            raise InvalidCredentials(
+                "Failed to authenticate with the given credentials."
+            )
+        if self.error == "OnboardingNotFinished":
+            raise OnboardingNotFinished(
+                "You need to choose a username before you can connect to the gateway."
+            )
+        raise AuthenticationError(
+            f"Received an error while trying to authenticate: {self.error}"
+        )
+
 
 @final
 class AuthenticatedEvent(Event):
@@ -126,6 +151,9 @@ class AuthenticatedEvent(Event):
     """
 
     __slots__ = ()
+
+    async def _gateway_handle(self) -> None:
+        self._state.gateway.authenticated = True
 
 
 @final
@@ -140,24 +168,57 @@ class ReadyEvent(Event):
     __slots__ = ()
 
     async def _gateway_handle(self) -> None:
+        # this needs to properly handle a READY after reconnecting
         state = self._state
-        servers = state.servers = {
-            raw_data["_id"]: Server(state, raw_data)
-            for raw_data in self.raw_data["servers"]
-        }
-        state.channels = {
-            raw_data["_id"]: Channel._from_dict(state, raw_data)
-            for raw_data in self.raw_data["channels"]
-        }
+
+        old_members: dict[str, dict[str, Member]] = {}
+        servers = {}
+        for raw_data in self.raw_data["servers"]:
+            server_id = raw_data["_id"]
+            server = state.servers.get(server_id)
+            if server is None:
+                server = Server(state, raw_data)
+            else:
+                server._update_from_dict(raw_data)
+                old_members[server_id] = server._members
+                server._members = {}
+            servers[server_id] = server
+        state.servers = servers
+
+        channels = {}
+        for raw_data in self.raw_data["channels"]:
+            channel_id = raw_data["_id"]
+            channel = state.channels.get(channel_id)
+            if channel is None:
+                channel = Channel._from_dict(state, raw_data)
+            else:
+                channel._update_from_dict(raw_data)
+            channels[channel_id] = channel
+        state.channels = channels
+
+        users = {}
         for raw_data in self.raw_data["users"]:
-            user = User(state, raw_data)
-            state.users[user.id] = user
+            user_id = raw_data["_id"]
+            user = state.users.get(user_id)
+            if user is None:
+                user = User(state, raw_data)
+            else:
+                user._update_from_dict(raw_data)
+            users[user_id] = user
             if user.relationship_status is RelationshipStatus.USER:
                 state.user = user
+        state.users = users
 
         for raw_data in self.raw_data["members"]:
-            member = Member(state, raw_data)
+            server_id = raw_data["_id"]["server"]
+            user_id = raw_data["_id"]["user"]
+            member = old_members.get(server_id, {}).get(user_id)
+            if member is None:
+                member = Member(state, raw_data)
+            else:
+                member._update_from_dict(raw_data)
             servers[member.server_id]._members[member.id] = member
+        state.ready.set()
 
 
 @final
