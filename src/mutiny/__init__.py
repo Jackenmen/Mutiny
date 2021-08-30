@@ -16,12 +16,13 @@
 
 __version__ = "0.3.1a0"
 
-from . import bits, enums, events, models
+from . import bits, enums, errors, events, models
 from ._internal.client import Client
 
 __all__ = (
     "bits",
     "enums",
+    "errors",
     "events",
     "models",
     "Client",
