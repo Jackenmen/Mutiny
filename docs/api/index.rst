@@ -20,3 +20,4 @@ The following section outlines the API of ``mutiny``.
    bits
    enums
    models
+   errors
