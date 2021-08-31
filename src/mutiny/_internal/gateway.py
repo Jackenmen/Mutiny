@@ -113,6 +113,11 @@ class GatewayClient:
         backoff = ExponentialBackoff(max_attempts=None)
         close_code = None
         while not self._closed:
+            if self.authenticated:
+                # Let's go with an assumption that if we managed to get authenticated
+                # successfully before the connection got closed, it's as if we were
+                # starting a new retrying loop.
+                backoff.reset()
             await backoff.delay(
                 _log,
                 "Websocket connection closed with code %s,"

@@ -74,8 +74,8 @@ class ExponentialBackoff:
         await asyncio.sleep(delay)
         return delay
 
-    def reset(self) -> None:
-        self.attempt = 0
+    def reset(self, *, first_attempt: bool = False) -> None:
+        self.attempt = 0 if first_attempt else 1
         self.exponent = 0
 
     def __aiter__(self) -> ExponentialBackoff:
