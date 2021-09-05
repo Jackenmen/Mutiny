@@ -111,24 +111,27 @@ class GatewayClient:
 
     async def start(self) -> None:
         backoff = ExponentialBackoff(max_attempts=None)
-        close_code = None
         while not self._closed:
             if self.authenticated:
                 # Let's go with an assumption that if we managed to get authenticated
                 # successfully before the connection got closed, it's as if we were
                 # starting a new retrying loop.
                 backoff.reset()
-            await backoff.delay(
-                _log,
-                "Websocket connection closed with code %s,"
-                " attempting a reconnect in %.2fs",
-                close_code,
-            )
-            await self.connect()
-            close_code = self.ws.close_code
+            await backoff.delay(_log, "Attempting a reconnect in %.2fs")
+
+            try:
+                await self.connect()
+            except (aiohttp.ClientError, asyncio.TimeoutError):
+                _log.info("Failed to connect to the gateway, attempting a reconnect...")
+                continue
+
             if self.ws.close_code is None:
                 _log.info("Websocket connection closed by the client.")
                 return
+            _log.info(
+                "Websocket connection closed with code %s, attempting a reconnect...",
+                self.ws.close_code,
+            )
 
     async def connect(self) -> None:
         self.authenticated = False
