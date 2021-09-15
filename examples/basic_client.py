@@ -4,7 +4,7 @@ import os
 from mutiny import Client, events
 
 # Client class can be constructed with a `token` for bot session,
-# or `user_id` and `session_token` for user session.
+# or `session_token` for user session.
 # To get a user session, see `get_session_id_and_token.py` example.
 
 client = Client(token=os.environ["BOT_TOKEN"])

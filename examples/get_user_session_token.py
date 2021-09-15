@@ -14,7 +14,7 @@ HTML_TEMPLATE = """
 <!doctype html>
 <html>
   <head>
-    <title>Get Revolt Session ID and Token</title>
+    <title>Get Revolt Session Token</title>
     <script src="https://js.hcaptcha.com/1/api.js" async="async" defer="defer"></script>
   </head>
   <body>
@@ -49,16 +49,13 @@ def _create_session(post_vars: dict[str, Any]) -> dict[str, Any]:
         "captcha": post_vars["h-captcha-response"],
     }
     request = urllib.request.Request(
-        f"{API_ROOT}/auth/login",
+        f"{API_ROOT}/auth/session/login",
         data=json.dumps(request_data).encode(),
         headers={"content-type": "application/json"},
     )
     with urllib.request.urlopen(request) as f:
         data = json.loads(f.read().decode())
-    return {
-        "user_id": data["user_id"],
-        "session_token": data["session_token"],
-    }
+    return {"session_token": data["session_token"]}
 
 
 class RequestHandler(BaseHTTPRequestHandler):

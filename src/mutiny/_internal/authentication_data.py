@@ -18,39 +18,35 @@ __all__ = ("AuthenticationData",)
 
 
 class AuthenticationData:
-    __slots__ = ("token", "user_id", "session_token")
+    __slots__ = ("token", "session_token")
 
     def __init__(
         self,
         *,
         token: Optional[str] = None,
-        user_id: Optional[str] = None,
         session_token: Optional[str] = None,
     ) -> None:
         if token is not None:
-            if user_id is not None or session_token is not None:
+            if session_token is not None:
                 raise ValueError(
                     "You can either pass `token` (for bot session),"
-                    " or `user_id` and `session_token` (for user session),"
-                    " you cannot pass all of them!"
+                    " or `session_token` (for user session),"
+                    " you cannot pass both of them!"
                 )
-        elif user_id is None or session_token is None:
+        elif session_token is None:
             raise ValueError(
                 "You have to either pass `token` (for bot session),"
-                " or `user_id` and `session_token` (for user session),"
+                " or `session_token` (for user session),"
                 " but you did not pass either!"
             )
 
         self.token = token
-        self.user_id = user_id
         self.session_token = session_token
 
     def to_dict(self) -> dict[str, Any]:
-        if self.token is not None:
-            return {"token": self.token}
-        return {"user_id": self.user_id, "session_token": self.session_token}
+        return {"token": self.token or self.session_token}
 
     def to_headers(self) -> dict[str, Any]:
         if self.token is not None:
-            return {"x-bot-token": self.token}
-        return {"x-user-id": self.user_id, "x-session-token": self.session_token}
+            return {"x-bot-token": self.token or self.session_token}
+        return {"x-session-token": self.session_token}

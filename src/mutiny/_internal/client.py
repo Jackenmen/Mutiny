@@ -48,16 +48,11 @@ class Client:
             import os
             import mutiny
 
-            client = mutiny.Client(
-                user_id=os.environ["BOT_USER_ID"],
-                session_token=os.environ["BOT_SESSION_TOKEN"],
-            )
+            client = mutiny.Client(session_token=os.environ["BOT_SESSION_TOKEN"])
 
     Parameters:
         token:
             The bot's token. This should be passed for bot accounts.
-        user_id:
-            The user ID. This should be passed for user accounts.
         session_token:
             User's session token. This should be passed for user accounts.
         api_url:
@@ -79,7 +74,6 @@ class Client:
         self,
         *,
         token: str,
-        user_id: None = ...,
         session_token: None = ...,
         api_url: str = ...,
         gateway_format: Optional[GatewayMessageFormat] = ...,
@@ -91,7 +85,6 @@ class Client:
         self,
         *,
         token: None = ...,
-        user_id: str,
         session_token: str,
         api_url: str = ...,
         gateway_format: Optional[GatewayMessageFormat] = ...,
@@ -102,13 +95,12 @@ class Client:
         self,
         *,
         token: Optional[str] = None,
-        user_id: Optional[str] = None,
         session_token: Optional[str] = None,
         api_url: str = "https://api.revolt.chat",
         gateway_format: Optional[GatewayMessageFormat] = None,
     ) -> None:
         self._authentication_data = AuthenticationData(
-            token=token, user_id=user_id, session_token=session_token
+            token=token, session_token=session_token
         )
         self._event_handler = EventHandler()
         self.api_url = api_url
