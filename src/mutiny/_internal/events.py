@@ -31,6 +31,7 @@ __all__ = (
     "Event",
     "ErrorEvent",
     "AuthenticatedEvent",
+    "PongEvent",
     "ReadyEvent",
     "MessageEvent",
     "MessageUpdateEvent",
@@ -154,6 +155,21 @@ class AuthenticatedEvent(Event):
 
     async def _gateway_handle(self) -> None:
         self._state.gateway.authenticated = True
+
+
+@final
+class PongEvent(Event):
+    """
+    PongEvent()
+
+    The Pong event. This indicates that the server received
+    a Ping event from the client.
+
+    Considering that the client uses websocket ping frames rather than
+    the Ping event, the client will probably never receive this event.
+    """
+
+    __slots__ = ()
 
 
 @final
