@@ -85,9 +85,11 @@ class EmbeddedYouTube(EmbeddedSpecial):
 
     Attributes:
         id: The ID of the resource this embed points to.
+        timestamp: The timestamp in the video this embed's link points to.
     """
 
     id: str = field("id")
+    timestamp: Optional[str] = field("timestamp", default=None)
 
 
 @final
