@@ -193,6 +193,7 @@ class Server(StatefulResource):
     )
     icon: Optional[Attachment] = field("icon", factory=True, default=None)
     banner: Optional[Attachment] = field("banner", factory=True, default=None)
+    nsfw: bool = field("nsfw", default=False)
     # small abuse that allows me to not define __init__ or parser
     _members: dict[str, Member] = field("some placeholder", default_factory=dict)
 

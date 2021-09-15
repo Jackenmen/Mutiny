@@ -171,6 +171,7 @@ class GroupChannel(Channel):
     last_message_id: Optional[str] = field("last_message", factory=True, default={})
     icon: Optional[Attachment] = field("icon", factory=True, default=None)
     permissions: ChannelPermissions = field("permissions", factory=True, default=0)
+    nsfw: bool = field("nsfw", default=False)
 
     def _last_message_id_parser(self, parser_data: ParserData) -> Optional[str]:
         return parser_data.get_field().get("_id")
@@ -239,6 +240,7 @@ class TextChannel(Channel):
         "role_permissions", factory=True, default={}
     )
     last_message_id: Optional[str] = field("last_message", default=None)
+    nsfw: bool = field("nsfw", default=False)
 
     def _icon_parser(self, parser_data: ParserData) -> Optional[Attachment]:
         return Attachment._from_raw_data(self._state, parser_data.get_field())
@@ -296,6 +298,7 @@ class VoiceChannel(Channel):
     role_permissions: dict[str, ChannelPermissions] = field(
         "role_permissions", factory=True, default={}
     )
+    nsfw: bool = field("nsfw", default=False)
 
     def _icon_parser(self, parser_data: ParserData) -> Optional[Attachment]:
         return Attachment._from_raw_data(self._state, parser_data.get_field())
