@@ -20,6 +20,7 @@ __all__ = (
     "ChannelPermissions",
     "ServerPermissions",
     "Badges",
+    "ServerFlags",
     "UserFlags",
 )
 
@@ -110,6 +111,22 @@ class Badges(BitField):
     revolt_team = bit(16)
     #: Early Adopter.
     early_adopter = bit(256)
+
+
+@final
+class ServerFlags(BitField):
+    """
+    ServerFlags()
+
+    Represents server's flags.
+    """
+
+    __slots__ = ()
+
+    #: Official Revolt server.
+    official = bit(1)
+    #: Verified community server.
+    verified = bit(2)
 
 
 @final

@@ -15,6 +15,7 @@
 from ._internal.bit_fields import (
     Badges,
     ChannelPermissions,
+    ServerFlags,
     ServerPermissions,
     UserFlags,
 )
@@ -23,5 +24,6 @@ __all__ = (
     "ChannelPermissions",
     "ServerPermissions",
     "Badges",
+    "ServerFlags",
     "UserFlags",
 )

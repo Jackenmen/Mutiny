@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Optional, final
 
-from ..bit_fields import ChannelPermissions, ServerPermissions
+from ..bit_fields import ChannelPermissions, ServerFlags, ServerPermissions
 from .attachment import Attachment
 from .bases import ParserData, StatefulModel, StatefulResource, field
 
@@ -194,6 +194,7 @@ class Server(StatefulResource):
     icon: Optional[Attachment] = field("icon", factory=True, default=None)
     banner: Optional[Attachment] = field("banner", factory=True, default=None)
     nsfw: bool = field("nsfw", default=False)
+    flags: ServerFlags = field("flags", factory=True, default=0)
     # small abuse that allows me to not define __init__ or parser
     _members: dict[str, Member] = field("some placeholder", default_factory=dict)
 
@@ -230,6 +231,9 @@ class Server(StatefulResource):
 
     def _banner_parser(self, parser_data: ParserData) -> Optional[Attachment]:
         return Attachment._from_raw_data(self._state, parser_data.get_field())
+
+    def _flags_parser(self, parser_data: ParserData) -> ServerFlags:
+        return ServerFlags(parser_data.get_field())
 
     def _update_from_event(self, event: ServerUpdateEvent) -> None:
         if event.clear == "Icon":
