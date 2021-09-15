@@ -14,6 +14,8 @@
 
 from __future__ import annotations
 
+import contextlib
+import contextvars
 import json as json_
 from typing import TYPE_CHECKING, Any
 
@@ -25,7 +27,19 @@ from .authentication_data import AuthenticationData
 if TYPE_CHECKING:
     from .state import State
 
-__all__ = ("RESTClient",)
+__all__ = ("skip_ratelimit_handling", "RESTClient")
+
+
+_HANDLE_RATELIMITS = contextvars.ContextVar("_HANDLE_RATELIMITS", default=True)
+
+
+@contextlib.contextmanager
+def skip_ratelimit_handling() -> None:
+    token = _HANDLE_RATELIMITS.set(False)
+    try:
+        yield
+    finally:
+        _HANDLE_RATELIMITS.reset(self.token)
 
 
 class RESTClient:

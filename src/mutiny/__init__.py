@@ -18,6 +18,7 @@ __version__ = "0.3.1a0"
 
 from . import bits, enums, errors, events, models
 from ._internal.client import Client
+from ._internal.rest import skip_ratelimit_handling
 
 __all__ = (
     "bits",
@@ -26,4 +27,5 @@ __all__ = (
     "events",
     "models",
     "Client",
+    "skip_ratelimit_handling",
 )
