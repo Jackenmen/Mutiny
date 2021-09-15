@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING, Any, Optional, Union, final
 from ... import events
 from ..bit_fields import ChannelPermissions
 from .attachment import Attachment
-from .bases import ParserData, StatefulResource, UpdateFieldMissing, field
+from .bases import ParserData, StatefulResource, field
 
 if TYPE_CHECKING:
     from ..state import State
@@ -115,22 +115,12 @@ class DMChannel(Channel):
 
     active: bool = field("active")
     recipient_ids: list[str] = field("recipients")
-    last_message_id: Optional[str] = field("last_message", factory=True, default={})
-
-    def _last_message_id_parser(self, parser_data: ParserData) -> Optional[str]:
-        last_message_id = parser_data.get_field().get("_id")
-        if not parser_data.init and last_message_id is None:
-            raise UpdateFieldMissing(("last_message", "_id"))
-        return last_message_id
+    last_message_id: Optional[str] = field("last_message_id", default=None)
 
     def _update_from_event(self, event: _UpdateEvent) -> None:
         if type(event) is events.MessageEvent:
             if event.message.content is not None:
-                self.raw_data["last_message"] = {
-                    "_id": event.message.id,
-                    "author": event.message.author_id,
-                    "short": event.message.content[:128],
-                }
+                self.raw_data["last_message_id"] = event.message.id
                 self.last_message_id = event.message.id
         elif type(event) is events.ChannelGroupJoinEvent:
             # this list is the same object as raw_data["recipients"]
@@ -168,13 +158,10 @@ class GroupChannel(Channel):
     name: str = field("name")
     owner_id: str = field("owner")
     description: Optional[str] = field("description", default=None)
-    last_message_id: Optional[str] = field("last_message", factory=True, default={})
+    last_message_id: Optional[str] = field("last_message_id", default=None)
     icon: Optional[Attachment] = field("icon", factory=True, default=None)
     permissions: ChannelPermissions = field("permissions", factory=True, default=0)
     nsfw: bool = field("nsfw", default=False)
-
-    def _last_message_id_parser(self, parser_data: ParserData) -> Optional[str]:
-        return parser_data.get_field().get("_id")
 
     def _icon_parser(self, parser_data: ParserData) -> Optional[Attachment]:
         return Attachment._from_raw_data(self._state, parser_data.get_field())
@@ -185,11 +172,7 @@ class GroupChannel(Channel):
     def _update_from_event(self, event: _UpdateEvent) -> None:
         if type(event) is events.MessageEvent:
             if event.message.content is not None:
-                self.raw_data["last_message"] = {
-                    "_id": event.message.id,
-                    "author": event.message.author_id,
-                    "short": event.message.content[:128],
-                }
+                self.raw_data["last_message_id"] = event.message.id
                 self.last_message_id = event.message.id
         elif type(event) is events.ChannelGroupJoinEvent:
             # this list is the same object as raw_data["recipients"]
@@ -239,7 +222,7 @@ class TextChannel(Channel):
     role_permissions: dict[str, ChannelPermissions] = field(
         "role_permissions", factory=True, default={}
     )
-    last_message_id: Optional[str] = field("last_message", default=None)
+    last_message_id: Optional[str] = field("last_message_id", default=None)
     nsfw: bool = field("nsfw", default=False)
 
     def _icon_parser(self, parser_data: ParserData) -> Optional[Attachment]:
@@ -261,7 +244,8 @@ class TextChannel(Channel):
     def _update_from_event(self, event: _UpdateEvent) -> None:
         if type(event) is events.MessageEvent:
             if event.message.content is not None:
-                self.raw_data["last_message"] = self.last_message_id = event.message.id
+                self.raw_data["last_message_id"] = event.message.id
+                self.last_message_id = event.message.id
         elif type(event) is events.ChannelUpdateEvent:
             if event.clear == "Icon":
                 self.raw_data.pop("icon", None)
