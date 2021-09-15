@@ -303,7 +303,7 @@ class WebsiteEmbed(Embed):
     site_name: Optional[str] = field("site_name", default=None)
     icon_url: Optional[str] = field("icon_url", default=None)
     # XXX: maybe convert this to a consistent value
-    colour: Optional[str] = field("color", default=None)
+    colour: Optional[str] = field("colour", default=None)
 
     def _special_parser(self, parser_data: ParserData) -> Optional[EmbeddedSpecial]:
         return EmbeddedSpecial._from_raw_data(parser_data.get_field())
