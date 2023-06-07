@@ -107,10 +107,18 @@ class Badges(BitField):
     supporter = bit(4)
     #: Responsible Disclosure.
     responsible_disclosure = bit(8)
-    #: Revolt Team.
-    revolt_team = bit(16)
+    #: Founder.
+    founder = bit(16)
+    #: Platform Moderation.
+    platform_moderation = bit(32)
+    #: Active Supporter.
+    active_supporter = bit(64)
+    #: Paw.
+    paw = bit(128)
     #: Early Adopter.
     early_adopter = bit(256)
+    #: Reserved Relevant Joke Badge 1.
+    early_adopter = bit(512)
 
 
 @final
