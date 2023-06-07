@@ -160,7 +160,6 @@ class Server(StatefulResource):
 
     Attributes:
         id: The server ID.
-        nonce: Nonce value, used to prevent double requests to create objects.
         owner_id: The user ID of the server's owner.
         name: The name of the server.
         description: The description of the server if provided.
@@ -175,7 +174,6 @@ class Server(StatefulResource):
     """
 
     id: str = field("_id")
-    nonce: Optional[str] = field("nonce", default=None)
     owner_id: str = field("owner")
     name: str = field("name")
     description: Optional[str] = field("description", default=None)

@@ -58,12 +58,10 @@ class Channel(StatefulResource):
 
                 Checking using ``type()`` or :func:`isinstance()` should be
                 preferred over using this attribute.
-        nonce: Nonce value, used to prevent double requests to create.
     """
 
     id: str = field("_id")
     channel_type: str = field("channel_type")
-    nonce: Optional[str] = field("nonce", default=None)
 
     @classmethod
     def _from_dict(cls, state: State, raw_data: dict[str, Any]) -> Channel:

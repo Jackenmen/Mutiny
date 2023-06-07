@@ -254,7 +254,6 @@ class Message(StatefulResource):
 
     Attributes:
         id: The message ID.
-        nonce: Nonce value, used to prevent double requests to create objects.
         channel_id: The ID of the channel this message was sent in.
         author_id: The ID of the user that sent this message.
         content:
@@ -272,7 +271,6 @@ class Message(StatefulResource):
     """
 
     id: str = field("_id")
-    nonce: Optional[str] = field("nonce", default=None)
     channel_id: str = field("channel")
     author_id: str = field("author")
     content: Optional[str] = field("content", factory=True)
