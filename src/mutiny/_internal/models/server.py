@@ -171,6 +171,9 @@ class Server(StatefulResource):
         default_channel_permissions: The default channel permissions in the server.
         icon: The server's icon if provided.
         banner: The server's banner if provided.
+        analytics: Indicates whether analytics should be collected in this server.
+        discoverable:
+            Indicates whether this server can be found in Discover Revolt->Servers tab.
     """
 
     id: str = field("_id")
@@ -195,6 +198,8 @@ class Server(StatefulResource):
     flags: ServerFlags = field("flags", factory=True, default=0)
     # small abuse that allows me to not define __init__ or parser
     _members: dict[str, Member] = field("some placeholder", default_factory=dict)
+    discoverable: bool = field("discoverable", default=False)
+    analytics: bool = field("analytics", factory=True, default=None)
 
     def _categories_parser(self, parser_data: ParserData) -> dict[str, Any]:
         return {
@@ -232,6 +237,10 @@ class Server(StatefulResource):
 
     def _flags_parser(self, parser_data: ParserData) -> ServerFlags:
         return ServerFlags(parser_data.get_field())
+
+    def _analytics_parser(self, parser_data: ParserData) -> bool:
+        value = parser_data.get_field()
+        return self.discoverable if value is None else value
 
     def _update_from_event(self, event: ServerUpdateEvent) -> None:
         if event.clear == "Icon":
