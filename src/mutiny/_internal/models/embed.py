@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Optional, TypeVar, final
 
-from ..enums import BandcampType, ImageSize, TwitchType
+from ..enums import BandcampType, ImageSize, LightspeedType, TwitchType
 from .attachment import Attachment
 from .bases import Model, ParserData, StatefulModel, field
 
@@ -32,8 +32,10 @@ __all__ = (
     "ImageEmbed",
     "TextEmbed",
     "EmbeddedSpecial",
+    "EmbeddedGIF",
     "EmbeddedYouTube",
     "EmbeddedTwitch",
+    "EmbeddedLightspeed",
     "EmbeddedSpotify",
     "EmbeddedBandcamp",
     "EmbeddedImage",
@@ -82,6 +84,15 @@ class _EmbeddedUnknown(EmbeddedSpecial):
 
 
 @final
+class EmbeddedGIF(EmbeddedSpecial):
+    """
+    EmbeddedGIF()
+
+    Represents a special GIF embed.
+    """
+
+
+@final
 class EmbeddedYouTube(EmbeddedSpecial):
     """
     EmbeddedYouTube()
@@ -95,6 +106,25 @@ class EmbeddedYouTube(EmbeddedSpecial):
 
     id: str = field("id")
     timestamp: Optional[str] = field("timestamp", default=None)
+
+
+@final
+class EmbeddedLightspeed(EmbeddedSpecial):
+    """
+    EmbeddedLightspeed()
+
+    Represents a special Lightspeed.tv embed.
+
+    Attributes:
+        id: The ID of the resource this embed points to.
+        content_type: The type of the resource this embed points to.
+    """
+
+    id: str = field("id")
+    content_type: LightspeedType = field("content_type", factory=True)
+
+    def _content_type_parser(self, parser_data: ParserData) -> LightspeedType:
+        return LightspeedType(parser_data.get_field())
 
 
 @final

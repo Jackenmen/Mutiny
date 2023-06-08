@@ -21,6 +21,7 @@ __all__ = (
     "AttachmentTag",
     "ImageSize",
     "BandcampType",
+    "LightspeedType",
     "TwitchType",
     "Presence",
     "RelationshipStatus",
@@ -76,6 +77,19 @@ class BandcampType(Enum):
     ALBUM = "Album"
     #: This is an embed for a Bandcamp track.
     TRACK = "Track"
+
+
+@final
+class LightspeedType(Enum):
+    """
+    LightspeedType()
+
+    Specifies the content type for an embedded Lightspeed.tv URL
+    in `mutiny.models.EmbeddedLightspeed`.
+    """
+
+    #: This is an embed for a Lightspeed.tv channel.
+    CHANNEL = "Channel"
 
 
 @final
