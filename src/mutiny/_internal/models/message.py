@@ -60,7 +60,11 @@ class SystemMessage(Model):
     type: str = field("type")
 
     @classmethod
-    def _from_dict(cls, raw_data: dict[str, Any]) -> SystemMessage:
+    def _from_raw_data(
+        cls, raw_data: Optional[dict[str, Any]]
+    ) -> Optional[SystemMessage]:
+        if raw_data is None:
+            return None
         system_message_type = raw_data["type"]
         system_message_cls = SYSTEM_MESSAGE_TYPES.get(
             system_message_type, _UnknownSystemMessage
@@ -300,8 +304,10 @@ class Message(StatefulResource):
     id: str = field("_id")
     channel_id: str = field("channel")
     author_id: str = field("author")
-    content: Optional[str] = field("content", factory=True)
-    system_message: Optional[SystemMessage] = field("content", factory=True)
+    content: Optional[str] = field("content", default=None)
+    system_message: Optional[SystemMessage] = field(
+        "system", factory=True, default=None
+    )
     attachments: list[Attachment] = field("attachments", factory=True, default=[])
     edited_at: Optional[datetime.datetime] = field("edited", factory=True, default=None)
     embeds: list[Embed] = field("embeds", factory=True, default=[])
@@ -309,17 +315,10 @@ class Message(StatefulResource):
     reply_ids: list[str] = field("replies", default_factory=list)
     masquerade: Optional[Masquerade] = field("masquerade", factory=True, default=None)
 
-    def _content_parser(self, parser_data: ParserData) -> Optional[str]:
-        content = parser_data.get_field()
-        return content if isinstance(content, str) else None
-
     def _system_message_parser(
         self, parser_data: ParserData
     ) -> Optional[SystemMessage]:
-        content = parser_data.get_field()
-        return (
-            SystemMessage._from_dict(content) if not isinstance(content, str) else None
-        )
+        return SystemMessage._from_raw_data(parser_data.get_field())
 
     def _attachments_parser(self, parser_data: ParserData) -> list[Attachment]:
         return [Attachment(self._state, data) for data in parser_data.get_field()]
