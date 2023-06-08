@@ -49,9 +49,9 @@ docs = [
     "sphinxcontrib-trio~=1.1.2",
 ]
 dev = [
-    "black==21.7b0",
+    "black==23.3.0",
     "flake8==3.9.2",
-    "isort==5.9.3",
+    "isort==5.12.0",
     "mypy==0.910",
     "msgpack-types>=0.2.0"
 ]

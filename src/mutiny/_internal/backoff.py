@@ -44,7 +44,7 @@ class ExponentialBackoff:
             return None
         if self.max_attempts is not None and self.attempt == self.max_attempts:
             raise MaxAttemptsReached
-        delay = self.BASE ** self.exponent
+        delay = self.BASE**self.exponent
         self.attempt += 1
         if delay >= self.max_delay:
             delay = self.max_delay
