@@ -119,6 +119,8 @@ class Presence(Enum):
 
     #: The user is busy.
     BUSY = "Busy"
+    #: The user is focused.
+    FOCUS = "Focus"
     #: The user is idle.
     IDLE = "Idle"
     #: The user is invisible.
