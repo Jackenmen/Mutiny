@@ -319,6 +319,7 @@ class WebsiteEmbed(Embed):
 
     Attributes:
         url: The website URL if provided.
+        original_url: The original direct URL if provided.
         special: Special information about this website if provided.
         title: The website title if provided.
         description: The website description if provided.
@@ -330,6 +331,7 @@ class WebsiteEmbed(Embed):
     """
 
     url: Optional[str] = field("url", default=None)
+    original_url: Optional[str] = field("original_url", default=None)
     special: Optional[EmbeddedSpecial] = field("special", factory=True, default=None)
     title: Optional[str] = field("title", default=None)
     description: Optional[str] = field("description", default=None)
