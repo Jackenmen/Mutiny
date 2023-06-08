@@ -12,18 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ._internal.bit_fields import (
-    Badges,
-    ChannelPermissions,
-    ServerFlags,
-    ServerPermissions,
-    UserFlags,
-)
+from ._internal.bit_fields import Badges, Permissions, ServerFlags, UserFlags
 
 __all__ = (
-    "ChannelPermissions",
-    "ServerPermissions",
     "Badges",
+    "Permissions",
     "ServerFlags",
     "UserFlags",
 )

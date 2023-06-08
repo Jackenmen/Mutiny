@@ -19,9 +19,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Optional, Union, final
 
 from ... import events
-from ..bit_fields import ChannelPermissions
+from ..bit_fields import Permissions
 from .attachment import Attachment
 from .bases import ParserData, StatefulResource, field
+from .permission_override import PermissionOverride
 
 if TYPE_CHECKING:
     from ..state import State
@@ -158,14 +159,14 @@ class GroupChannel(Channel):
     description: Optional[str] = field("description", default=None)
     last_message_id: Optional[str] = field("last_message_id", default=None)
     icon: Optional[Attachment] = field("icon", factory=True, default=None)
-    permissions: ChannelPermissions = field("permissions", factory=True, default=0)
+    permissions: Permissions = field("permissions", factory=True, default=0)
     nsfw: bool = field("nsfw", default=False)
 
     def _icon_parser(self, parser_data: ParserData) -> Optional[Attachment]:
         return Attachment._from_raw_data(self._state, parser_data.get_field())
 
-    def _permissions_parser(self, parser_data: ParserData) -> ChannelPermissions:
-        return ChannelPermissions(parser_data.get_field())
+    def _permissions_parser(self, parser_data: ParserData) -> Permissions:
+        return Permissions(parser_data.get_field())
 
     def _update_from_event(self, event: _UpdateEvent) -> None:
         if type(event) is events.MessageEvent:
@@ -200,8 +201,9 @@ class TextChannel(Channel):
         name: The channel's name.
         description: The channel's description if provided.
         icon: The channel's icon if provided.
-        default_permissions: The default permissions in this channel.
-        role_permissions: The mapping of role ID to its permissions in this channel.
+        default_permission_override: The default permission override in this channel.
+        permission_overrides:
+            The mapping of role ID to its permission override in this channel.
         last_message_id:
             ID of the last message sent in this channel if any.
 
@@ -214,10 +216,10 @@ class TextChannel(Channel):
     name: str = field("name")
     description: Optional[str] = field("description", default=None)
     icon: Optional[Attachment] = field("icon", factory=True, default=None)
-    default_permissions: ChannelPermissions = field(
-        "default_permissions", factory=True, default=0
+    default_permission_override: PermissionOverride = field(
+        "default_permissions", factory=True, default={"a": 0, "d": 0}
     )
-    role_permissions: dict[str, ChannelPermissions] = field(
+    permission_overrides: dict[str, PermissionOverride] = field(
         "role_permissions", factory=True, default={}
     )
     last_message_id: Optional[str] = field("last_message_id", default=None)
@@ -226,17 +228,17 @@ class TextChannel(Channel):
     def _icon_parser(self, parser_data: ParserData) -> Optional[Attachment]:
         return Attachment._from_raw_data(self._state, parser_data.get_field())
 
-    def _default_permissions_parser(
+    def _default_permission_override_parser(
         self, parser_data: ParserData
-    ) -> ChannelPermissions:
-        return ChannelPermissions(parser_data.get_field())
+    ) -> PermissionOverride:
+        return PermissionOverride(parser_data.get_field())
 
-    def _role_permissions_parser(
+    def _permission_overrides_parser(
         self, parser_data: ParserData
-    ) -> dict[str, ChannelPermissions]:
+    ) -> dict[str, PermissionOverride]:
         return {
-            role_id: ChannelPermissions(perm_value)
-            for role_id, perm_value in parser_data.get_field().items()
+            role_id: PermissionOverride(override_data)
+            for role_id, override_data in parser_data.get_field().items()
         }
 
     def _update_from_event(self, event: _UpdateEvent) -> None:
@@ -266,18 +268,19 @@ class VoiceChannel(Channel):
         name: The channel's name.
         description: The channel's description if provided.
         icon: The channel's icon if provided.
-        default_permissions: The default permissions in this channel.
-        role_permissions: The mapping of role ID to its permissions in this channel.
+        default_permission_override: The default permission override in this channel.
+        permission_overrides:
+            The mapping of role ID to its permission override in this channel.
     """
 
     server_id: str = field("server")
     name: str = field("name")
     description: Optional[str] = field("description", default=None)
     icon: Optional[Attachment] = field("icon", factory=True, default=None)
-    default_permissions: ChannelPermissions = field(
-        "default_permissions", factory=True, default=0
+    default_permission_override: PermissionOverride = field(
+        "default_permissions", factory=True, default={"a": 0, "d": 0}
     )
-    role_permissions: dict[str, ChannelPermissions] = field(
+    permission_overrides: dict[str, PermissionOverride] = field(
         "role_permissions", factory=True, default={}
     )
     nsfw: bool = field("nsfw", default=False)
@@ -285,17 +288,17 @@ class VoiceChannel(Channel):
     def _icon_parser(self, parser_data: ParserData) -> Optional[Attachment]:
         return Attachment._from_raw_data(self._state, parser_data.get_field())
 
-    def _default_permissions_parser(
+    def _default_permission_override_parser(
         self, parser_data: ParserData
-    ) -> ChannelPermissions:
-        return ChannelPermissions(parser_data.get_field())
+    ) -> PermissionOverride:
+        return PermissionOverride(parser_data.get_field())
 
-    def _role_permissions_parser(
+    def _permission_overrides_parser(
         self, parser_data: ParserData
-    ) -> dict[str, ChannelPermissions]:
+    ) -> dict[str, PermissionOverride]:
         return {
-            role_id: ChannelPermissions(perm_value)
-            for role_id, perm_value in parser_data.get_field().items()
+            role_id: PermissionOverride(override_data)
+            for role_id, override_data in parser_data.get_field().items()
         }
 
     def _update_from_event(self, event: _UpdateEvent) -> None:

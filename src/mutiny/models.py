@@ -58,6 +58,7 @@ from ._internal.models.message import (
     UserLeftSystemMessage,
     UserRemovedSystemMessage,
 )
+from ._internal.models.permission_override import PermissionOverride
 from ._internal.models.server import (
     Category,
     Member,
@@ -95,6 +96,8 @@ __all__ = (
     "UserKickedSystemMessage",
     "UserLeftSystemMessage",
     "UserRemovedSystemMessage",
+    # .permission_override
+    "PermissionOverride",
     # .server
     "Server",
     "Category",

@@ -12,160 +12,98 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import final
+from typing import Any, Optional, final
 
-from .models.bases import BitField, bit
+from ..bit_fields import Permissions
+from .bases import Model, field
 
-__all__ = (
-    "Permissions",
-    "Badges",
-    "ServerFlags",
-    "UserFlags",
-)
+__all__ = ("PermissionOverride",)
 
 
 @final
-class Permissions(BitField):
+class PermissionOverride(Model):
     """
-    Permissions()
+    PermissionOverride()
 
-    Represents the server permissions or channel allow/deny overrides.
+    Represents a role's permission override.
     """
-
-    __slots__ = ()
 
     #: Allows members to manage the channel or channels on the server.
-    manage_channels = bit(1)
+    manage_channels: Optional[bool] = field("", default=None)
     #: Allows members to change the server's name, description, icon
     #: and other related information.
-    manage_server = bit(2)
+    manage_server: Optional[bool] = field("", default=None)
     #: Allows members to manage server's/channel's permissions.
-    manage_permissions = bit(4)
+    manage_permissions: Optional[bool] = field("", default=None)
     #: Allows members to create, edit and delete roles with a lower than theirs.
     #: Also allows them to modify role permissions on channels.
-    manage_roles = bit(8)
+    manage_roles: Optional[bool] = field("", default=None)
     #: Allows members to manage emojis on the server.
-    manage_customization = bit(16)
+    manage_customization: Optional[bool] = field("", default=None)
     #: Allows members to remove other members (below their top role position)
     #: from the server. Kicked members may rejoin with an invite.
-    kick_members = bit(64)
+    kick_members: Optional[bool] = field("", default=None)
     #: Allows members to permanently remove other members
     #: (below their top role position) from the server.
-    ban_members = bit(128)
+    ban_members: Optional[bool] = field("", default=None)
     #: Allows members to time out other members (below their top role position)
     #: from the server.
-    timeout_members = bit(256)
+    timeout_members: Optional[bool] = field("", default=None)
     #: Allows members to assign roles to other members below their top role position.
-    assign_roles = bit(512)
+    assign_roles: Optional[bool] = field("", default=None)
     #: Allows members to change their own nickname on the server.
-    change_nickname = bit(1024)
+    change_nickname: Optional[bool] = field("", default=None)
     #: Allows members to change the nicknames of other members
     #: (below their top role position) on the server.
-    manage_nicknames = bit(2048)
+    manage_nicknames: Optional[bool] = field("", default=None)
     #: Allows members to change their server avatar on the server.
-    change_avatar = bit(4096)
+    change_avatar: Optional[bool] = field("", default=None)
     #: Allows members to remove the server avatar of other members on the server.
-    remove_avatars = bit(8192)
+    remove_avatars: Optional[bool] = field("", default=None)
     #: Allows members to view the channels they have this permission on.
-    view_channels = bit(1048576)
+    view_channels: Optional[bool] = field("", default=None)
     #: Allows members to read the past message history.
-    read_message_history = bit(2097152)
+    read_message_history: Optional[bool] = field("", default=None)
     #: Allows members to send messages in the text channel.
-    send_messages = bit(4194304)
+    send_messages: Optional[bool] = field("", default=None)
     #: Allows members to delete messages sent by other members in the text channel.
-    manage_messages = bit(8388608)
+    manage_messages: Optional[bool] = field("", default=None)
     #: Allows members to manage webhook entries for the text channel.
-    manage_webhooks = bit(16777216)
+    manage_webhooks: Optional[bool] = field("", default=None)
     #: Allows members to create invites to this server/channel.
-    invite_others = bit(33554432)
+    invite_others: Optional[bool] = field("", default=None)
     #: Allows members to send custom embeds *and* show embedded content on links
     #: the user posts in the text channel.
-    send_embeds = bit(67108864)
+    send_embeds: Optional[bool] = field("", default=None)
     #: Allows members to upload files in the text channel.
-    upload_files = bit(134217728)
+    upload_files: Optional[bool] = field("", default=None)
     #: Allows members to masquerade (override their actual display name/avatar
     #: with a different one) on individual messages that they send.
-    masquerade = bit(268435456)
+    masquerade: Optional[bool] = field("", default=None)
     #: Allows members to react to messages with emojis.
-    react = bit(536870912)
+    react: Optional[bool] = field("", default=None)
     #: Allows members to connect to the voice channel or channels on the server.
-    connect = bit(1073741824)
+    connect: Optional[bool] = field("", default=None)
     #: Allows members to speak in the voice channel or channels on the server.
-    speak = bit(2147483648)
+    speak: Optional[bool] = field("", default=None)
     #: Allows members to share video in the voice channel or channels on the server.
-    stream_video = bit(4294967296)
+    stream_video: Optional[bool] = field("", default=None)
     #: Allows members to mute other members (below their top role position)
     #: in the voice channel.
-    mute_members = bit(8589934592)
+    mute_members: Optional[bool] = field("", default=None)
     #: Allows members to deafen other members (below their top role position)
     #: in the voice channel.
-    deafen_members = bit(17179869184)
+    deafen_members: Optional[bool] = field("", default=None)
     #: Allows members to move other members (below their top role position)
     #: between the voice channels they have this permission in.
-    move_members = bit(34359738368)
+    move_members: Optional[bool] = field("", default=None)
 
-
-@final
-class Badges(BitField):
-    """
-    Badges()
-
-    Represents user's badges.
-    """
-
-    __slots__ = ()
-
-    #: Developer.
-    developer = bit(1)
-    #: Translator.
-    translator = bit(2)
-    #: Supporter.
-    supporter = bit(4)
-    #: Responsible Disclosure.
-    responsible_disclosure = bit(8)
-    #: Founder.
-    founder = bit(16)
-    #: Platform Moderation.
-    platform_moderation = bit(32)
-    #: Active Supporter.
-    active_supporter = bit(64)
-    #: Paw.
-    paw = bit(128)
-    #: Early Adopter.
-    early_adopter = bit(256)
-    #: Reserved Relevant Joke Badge 1.
-    early_adopter = bit(512)
-
-
-@final
-class ServerFlags(BitField):
-    """
-    ServerFlags()
-
-    Represents server's flags.
-    """
-
-    __slots__ = ()
-
-    #: Official Revolt server.
-    official = bit(1)
-    #: Verified community server.
-    verified = bit(2)
-
-
-@final
-class UserFlags(BitField):
-    """
-    UserFlags()
-
-    Represents user's flags.
-    """
-
-    __slots__ = ()
-
-    #: The account is suspended.
-    suspended = bit(1)
-    #: The account was deleted.
-    deleted = bit(2)
-    #: The account is banned.
-    banned = bit(4)
+    def __init__(self, raw_data: dict[str, Any]) -> None:
+        super().__init__(raw_data)
+        allow = Permissions(raw_data["a"])
+        deny = Permissions(raw_data["d"])
+        for attr_name in self.__class__._MODEL_FIELDS:
+            if getattr(allow, attr_name) is True:
+                setattr(self, attr_name, True)
+            elif getattr(deny, attr_name) is True:
+                setattr(self, attr_name, False)
