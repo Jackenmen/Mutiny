@@ -37,6 +37,7 @@ __all__ = (
     "ChannelRenamedSystemMessage",
     "ChannelDescriptionChangedSystemMessage",
     "ChannelIconChangedSystemMessage",
+    "Masquerade",
 )
 
 
@@ -246,6 +247,32 @@ SYSTEM_MESSAGE_TYPES = {
 
 
 @final
+class Masquerade(Model):
+    """
+    Masquerade()
+
+    Masquerade displayed for a message.
+
+    This can replace user's name, avatar, and name colour on a specific message.
+
+    Attributes:
+        name: Name to replace the display name shown on the message with.
+        avatar_url: Avatar URL to replace the avatar shown on the message with.
+        colour: Colour to replace the display name colour shown on the message with.
+    """
+
+    name: Optional[str] = field("name", default=None)
+    avatar_url: Optional[str] = field("avatar", default=None)
+    colour: Optional[str] = field("colour", default=None)
+
+    @classmethod
+    def _from_raw_data(cls, raw_data: Optional[dict[str, Any]]) -> Optional[Masquerade]:
+        if raw_data is None:
+            return None
+        return cls(raw_data)
+
+
+@final
 class Message(StatefulResource):
     """
     Message()
@@ -280,6 +307,7 @@ class Message(StatefulResource):
     embeds: list[Embed] = field("embeds", factory=True, default=[])
     mention_ids: list[str] = field("mentions", default_factory=list)
     reply_ids: list[str] = field("replies", default_factory=list)
+    masquerade: Optional[Masquerade] = field("masquerade", factory=True, default=None)
 
     def _content_parser(self, parser_data: ParserData) -> Optional[str]:
         content = parser_data.get_field()
@@ -301,3 +329,6 @@ class Message(StatefulResource):
 
     def _embeds_parser(self, parser_data: ParserData) -> list[Embed]:
         return [Embed._from_dict(data) for data in parser_data.get_field()]
+
+    def _masquerade_parser(self, parser_data: ParserData) -> Optional[Masquerade]:
+        return Masquerade._from_raw_data(parser_data.get_field())

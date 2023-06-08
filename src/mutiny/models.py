@@ -46,6 +46,7 @@ from ._internal.models.message import (
     ChannelDescriptionChangedSystemMessage,
     ChannelIconChangedSystemMessage,
     ChannelRenamedSystemMessage,
+    Masquerade,
     Message,
     SystemMessage,
     TextSystemMessage,
@@ -81,6 +82,7 @@ __all__ = (
     "VoiceChannel",
     # .message
     "Message",
+    "Masquerade",
     "ChannelDescriptionChangedSystemMessage",
     "ChannelIconChangedSystemMessage",
     "ChannelRenamedSystemMessage",
