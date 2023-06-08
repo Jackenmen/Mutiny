@@ -16,16 +16,21 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional, TypeVar, final
+from typing import TYPE_CHECKING, Any, Optional, TypeVar, final
 
 from ..enums import BandcampType, ImageSize, TwitchType
-from .bases import Model, ParserData, field
+from .attachment import Attachment
+from .bases import Model, ParserData, StatefulModel, field
+
+if TYPE_CHECKING:
+    from ..state import State
 
 __all__ = (
     "Embed",
     "NoneEmbed",
     "WebsiteEmbed",
     "ImageEmbed",
+    "TextEmbed",
     "EmbeddedSpecial",
     "EmbeddedYouTube",
     "EmbeddedTwitch",
@@ -233,7 +238,7 @@ class EmbeddedVideo(Model):
         return cls(raw_data)
 
 
-class Embed(Model):
+class Embed(StatefulModel):
     """
     Embed()
 
@@ -252,10 +257,10 @@ class Embed(Model):
     type: str = field("type")
 
     @classmethod
-    def _from_dict(cls, raw_data: dict[str, Any]) -> Embed:
+    def _from_dict(cls, state: State, raw_data: dict[str, Any]) -> Embed:
         embed_type = raw_data["type"]
         embed_cls = EMBED_TYPES.get(embed_type, _UnknownEmbed)
-        return embed_cls(raw_data)
+        return embed_cls(state, raw_data)
 
 
 @final
@@ -332,8 +337,36 @@ class ImageEmbed(_EmbeddedImageMixin, Embed):
     __slots__ = ()
 
 
+@final
+class TextEmbed(Embed):
+    """
+    TextEmbed()
+
+    Represents a custom text embed.
+
+    Attributes:
+        icon_url: The icon URL if provided.
+        url: The URL if provided.
+        title: The title if provided.
+        description: The description if provided.
+        media: The embedded attachment if provided.
+        colour: The embed colour if provided.
+    """
+
+    icon_url: Optional[str] = field("icon_url", default=None)
+    url: Optional[str] = field("url", default=None)
+    title: Optional[str] = field("title", default=None)
+    description: Optional[str] = field("description", default=None)
+    media: Optional[Attachment] = field("media", default=None)
+    colour: Optional[str] = field("colour", default=None)
+
+    def _attachment_parser(self, parser_data: ParserData) -> Optional[Attachment]:
+        return Attachment._from_raw_data(self._state, parser_data.get_field())
+
+
 EMBED_TYPES = {
     "None": NoneEmbed,
     "Website": WebsiteEmbed,
     "Image": ImageEmbed,
+    "Text": TextEmbed,
 }

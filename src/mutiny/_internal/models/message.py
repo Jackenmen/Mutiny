@@ -328,7 +328,7 @@ class Message(StatefulResource):
         return parse_datetime(parser_data.get_field())
 
     def _embeds_parser(self, parser_data: ParserData) -> list[Embed]:
-        return [Embed._from_dict(data) for data in parser_data.get_field()]
+        return [Embed._from_dict(self._state, data) for data in parser_data.get_field()]
 
     def _masquerade_parser(self, parser_data: ParserData) -> Optional[Masquerade]:
         return Masquerade._from_raw_data(parser_data.get_field())
