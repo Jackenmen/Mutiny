@@ -30,6 +30,7 @@ __all__ = (
     "NoneEmbed",
     "WebsiteEmbed",
     "ImageEmbed",
+    "VideoEmbed",
     "TextEmbed",
     "EmbeddedSpecial",
     "EmbeddedGIF",
@@ -370,6 +371,24 @@ class ImageEmbed(_EmbeddedImageMixin, Embed):
 
 
 @final
+class VideoEmbed(Embed):
+    """
+    VideoEmbed()
+
+    Represents a video embed.
+
+    Attributes:
+        url: The video's URL.
+        width: The video's width.
+        height: The video's height.
+    """
+
+    url: str = field("url")
+    width: int = field("width")
+    height: int = field("height")
+
+
+@final
 class TextEmbed(Embed):
     """
     TextEmbed()
@@ -400,5 +419,6 @@ EMBED_TYPES = {
     "None": NoneEmbed,
     "Website": WebsiteEmbed,
     "Image": ImageEmbed,
+    "Video": VideoEmbed,
     "Text": TextEmbed,
 }

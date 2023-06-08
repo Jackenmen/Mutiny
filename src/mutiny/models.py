@@ -43,6 +43,7 @@ from ._internal.models.embed import (
     ImageEmbed,
     NoneEmbed,
     TextEmbed,
+    VideoEmbed,
     WebsiteEmbed,
 )
 from ._internal.models.message import (
@@ -120,6 +121,7 @@ __all__ = (
     "TextEmbed",
     "WebsiteEmbed",
     "ImageEmbed",
+    "VideoEmbed",
     "EmbeddedSpecial",
     "EmbeddedGIF",
     "EmbeddedYouTube",
