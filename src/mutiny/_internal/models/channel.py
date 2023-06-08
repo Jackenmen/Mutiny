@@ -210,6 +210,8 @@ class TextChannel(Channel):
             .. note::
 
                 This only includes non-system messages.
+        nsfw: Indicates whether this channel is Not Safe For Work (NSFW).
+        archived: Indicates whether this channel is archived.
     """
 
     server_id: str = field("server")
@@ -224,6 +226,7 @@ class TextChannel(Channel):
     )
     last_message_id: Optional[str] = field("last_message_id", default=None)
     nsfw: bool = field("nsfw", default=False)
+    archived: bool = field("archived", default=False)
 
     def _icon_parser(self, parser_data: ParserData) -> Optional[Attachment]:
         return Attachment._from_raw_data(self._state, parser_data.get_field())
