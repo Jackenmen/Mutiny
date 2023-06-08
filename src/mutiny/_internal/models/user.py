@@ -143,6 +143,7 @@ class User(StatefulResource):
         relationship_status: The client user's relationship status with this user.
         online: Indicates whether the user is online.
         flags: The user flags.
+        privileged: Indicates whether this user is privileged.
         bot: The information about this bot, or `None` if this user is not a bot.
         profile: The user's profile.
     """
@@ -160,6 +161,7 @@ class User(StatefulResource):
     )
     online: bool = field("online")
     flags: UserFlags = field("flags", factory=True, default=0)
+    privileged: bool = field("privileged", default=False)
     bot: Optional[BotInfo] = field("bot", factory=True, default=None)
     profile: Optional[UserProfile] = field("profile", factory=True, default=None)
 
